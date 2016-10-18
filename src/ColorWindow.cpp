@@ -186,13 +186,13 @@ void ColorWindow::SaveColorSettings()
 		case SHAPE_COLOR:
 			m_config->Write(m_RedKey_Shape, m_Red_Shape);
 			m_config->Write(m_GreenKey_Shape, m_Green_Shape);
-			m_config->Write(m_BlueKey_Shape, m_BlueKey_Shape);
+			m_config->Write(m_BlueKey_Shape, m_Blue_Shape);
 			break;
 
 		case BACKGROUND_COLOR:
 			m_config->Write(m_RedKey_Background, m_Red_Background);
 			m_config->Write(m_GreenKey_Background, m_Green_Background);
-			m_config->Write(m_BlueKey_Background, m_BlueKey_Background);
+			m_config->Write(m_BlueKey_Background, m_Blue_Background);
 			break;
 
 		default:

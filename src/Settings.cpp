@@ -37,6 +37,8 @@ END_EVENT_TABLE()
 
 Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Point, const wxSize & Size): wxFrame(window, wxID_ANY, Title, Point, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN)
 {
+	m_Panel = new wxPanel(this);
+
 	SetupToolbars();
 
 	m_Changed = false;
@@ -54,22 +56,9 @@ Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Po
 		LoadSettings();
 	}
 
-	
-	m_Panel = new wxPanel(this);
-	//m_Save = new wxButton(m_Panel, ID_BUTTON_SAVE, wxT("No Changes Made"), wxPoint(75, 215), wxSize(120, 50));
-	//m_Clipboard = new wxCheckBox(m_Panel, ID_CHECKBOX_CLIPBOARD, wxT("Always copy image to Clipboard"), wxPoint(10, 20), wxSize(200, 20));
-	//m_SaveFile = new wxCheckBox(m_Panel, ID_CHECKBOX_SAVE_FILE, wxT("Save images"), wxPoint(10, 40), wxSize(100, 20));
-	//m_SaveFileLocation = new wxButton(m_Panel, ID_BUTTON_SET_FILE_LOCATION, wxT("Set File Path"), wxPoint(10, 70), wxSize(100, 25));
-	//m_PlaySound = new wxCheckBox(m_Panel, ID_CHECKBOX_PLAY_SOUND, wxT("Play sound after capturing image"), wxPoint(10, 100), wxSize(195, 25));
-	//m_PlaySoundPath = new wxButton(m_Panel, ID_BUTTON_SET_SOUND_PATH, wxT("Set Sound"), wxPoint(10, 130), wxSize(100, 25));
-	//m_PlaySoundButton = new wxButton(m_Panel, ID_BUTTON_PLAY_SOUND, wxT("Test Sound"), wxPoint(10, 155), wxSize(100, 25));
-	//m_ColorOutlineCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_COLOR, wxT("Use Custom Outline Color"), wxPoint(10, 20), wxSize(120, 25));
-	//m_PickOutlineColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_OUTLINE_COLOR, wxT("Pick Custom Outline Color"), wxPoint(10, 50), wxSize(110, 25));
-
+	AllocateControls();
 	LoadGeneralSettingsLayout();
-
 	UpdateGUISettings();
-
 
 	m_Save->Disable();
 }
@@ -233,6 +222,7 @@ void Settings::OnPlaySoundButton(wxCommandEvent & event)
 
 void Settings::OnUseOutlineColorCheckbox(wxCommandEvent & event)
 {
+	m_Changed = true;
 	m_Save->Enable();
 	m_Save->SetLabel(wxT("Save Changes"));
 
@@ -251,6 +241,7 @@ void Settings::OnUseOutlineColorCheckbox(wxCommandEvent & event)
 
 void Settings::OnUseShapeColorCheckbox(wxCommandEvent & event)
 {
+	m_Changed = true;
 	m_Save->Enable();
 	m_Save->SetLabel(wxT("Save Changes"));
 
@@ -269,6 +260,7 @@ void Settings::OnUseShapeColorCheckbox(wxCommandEvent & event)
 
 void Settings::OnUseBackgroundColorCheckbox(wxCommandEvent & event)
 {
+	m_Changed = true;
 	m_Save->Enable();
 	m_Save->SetLabel(wxT("Save Changes"));
 
@@ -489,9 +481,9 @@ void Settings::AllocateButtons()
 	m_SaveFileLocation = new wxButton(m_Panel, ID_BUTTON_SET_FILE_LOCATION, wxT("Set File Path"), wxPoint(10, 70), wxSize(100, 25));
 	m_PlaySoundPath = new wxButton(m_Panel, ID_BUTTON_SET_SOUND_PATH, wxT("Set Sound"), wxPoint(10, 130), wxSize(100, 25));
 	m_PlaySoundButton = new wxButton(m_Panel, ID_BUTTON_PLAY_SOUND, wxT("Test Sound"), wxPoint(10, 155), wxSize(100, 25));
-	m_PickOutlineColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_OUTLINE_COLOR, wxT("Pick Custom Outline Color"), wxPoint(10, 50), wxSize(110, 25));
-	m_PickShapeColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_SHAPE_COLOR, wxT("Pick Custom Shape Color"), wxPoint(10, 100), wxSize(110, 25));
-	m_PickBackgroundColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_BACKGROUND_COLOR, wxT("Pick Custom Background Color"), wxPoint(10, 150), wxSize(110, 25));
+	m_PickOutlineColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_OUTLINE_COLOR, wxT("Pick Custom Outline Color"), wxPoint(10, 50), wxSize(150, 25));
+	m_PickShapeColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_SHAPE_COLOR, wxT("Pick Custom Shape Color"), wxPoint(10, 100), wxSize(150, 25));
+	m_PickBackgroundColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_BACKGROUND_COLOR, wxT("Pick Custom Background Color"), wxPoint(10, 150), wxSize(200, 25));
 }
 
 void Settings::AllocateCheckBoxes()
@@ -499,9 +491,9 @@ void Settings::AllocateCheckBoxes()
 	m_Clipboard = new wxCheckBox(m_Panel, ID_CHECKBOX_CLIPBOARD, wxT("Always copy image to Clipboard"), wxPoint(10, 20), wxSize(200, 20));
 	m_SaveFile = new wxCheckBox(m_Panel, ID_CHECKBOX_SAVE_FILE, wxT("Save images"), wxPoint(10, 40), wxSize(100, 20));
 	m_PlaySound = new wxCheckBox(m_Panel, ID_CHECKBOX_PLAY_SOUND, wxT("Play sound after capturing image"), wxPoint(10, 100), wxSize(195, 25));
-	m_ColorOutlineCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_OUTLINE_COLOR, wxT("Use Custom Outline Color"), wxPoint(10, 20), wxSize(120, 25));
+	m_ColorOutlineCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_OUTLINE_COLOR, wxT("Use Custom Outline Color"), wxPoint(10, 20), wxSize(170, 25));
 	m_ColorShapeCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_SHAPE_COLOR, wxT("Use Custom Shape Color"), wxPoint(10, 80), wxSize(200, 20));
-	m_ColorBackgroundCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_BACKGROUND_COLOR, wxT("Use Custom Background Color"), wxPoint(10, 120), wxSize(200, 20));
+	m_ColorBackgroundCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_BACKGROUND_COLOR, wxT("Use Custom Background Color"), wxPoint(10, 130), wxSize(200, 20));
 }
 
 // This makes sure manual changes to the config file don't go over 255 because undefined behavior could result

@@ -93,7 +93,7 @@ private:
 	const wxString m_UsingCustomShapeColorKey = wxT("Custom Shape Color");
 	const wxString m_RedKey_Shape = wxT("Shape Color: Red");
 	const wxString m_GreenKey_Shape = wxT("Shape Color: Green");
-	const wxString m_BlueKey_Shape = wxT("Shape Color: Green");
+	const wxString m_BlueKey_Shape = wxT("Shape Color: Blue");
 
 
 	const wxString m_UsingCustomBackgroundColorKey = wxT("Custom Background Color");

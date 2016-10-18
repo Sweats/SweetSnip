@@ -49,10 +49,10 @@ private:
 	int m_Red_Shape;
 	int m_Green_Shape;
 	int m_Blue_Shape;
-	wxColour m_Shape_Color; //  Color inside the shap itself and its transparency
+	wxColour m_Shape_Color; //  Color inside the shape itself and its transparency
 	const wxString m_RedKey_Shape = wxT("Shape Color: Red");
 	const wxString m_GreenKey_Shape = wxT("Shape Color: Green");
-	const wxString m_BlueKey_Shape = wxT("Shape Color: Green");
+	const wxString m_BlueKey_Shape = wxT("Shape Color: Blue");
 
 // -----------------------------------------------------------------------
 
