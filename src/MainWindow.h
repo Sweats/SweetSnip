@@ -28,7 +28,5 @@ private:
 enum
 {
 	ID_BUTTON = wxID_HIGHEST + 1,
-	ID_TOOLBAR_TEST,
-	ID_TOOLBAR_TEST2
 };
 

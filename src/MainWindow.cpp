@@ -30,5 +30,5 @@ void MainWindow::OnButton(wxCommandEvent & event)
 
 void MainWindow::OnAbout(wxCommandEvent & event)
 {
-	wxMessageBox(wxT("This program was created by Sweats using wxWigits"), wxT("About"));
+	wxMessageBox(wxT("This program was created by Sweats using wxWidgets"), wxT("About"));
 }
