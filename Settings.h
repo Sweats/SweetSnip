@@ -38,6 +38,7 @@ private:
 
 	// Misc 
 
+	wxWindow * m_Window;
 	wxFileConfig * m_config;
 	wxToolBar * m_Toolbar;
 	wxToolBarToolBase * m_Color_Toolbutton;

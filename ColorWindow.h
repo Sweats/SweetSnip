@@ -22,6 +22,7 @@ private:
 	wxSlider * m_BlueSlider;
 	wxButton * m_SaveButton;
 	wxFileConfig * m_config; // Passed from the settings window
+	wxWindow * m_Window;
 
 	void OnRedSliderChanged(wxCommandEvent & event);
 	void OnGreenSliderChanged(wxCommandEvent & event);

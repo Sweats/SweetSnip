@@ -36,11 +36,12 @@ EVT_TOOL(ID_TOOLBAR_GENERAL_SETTINGS, Settings::OnLoadGeneralSettings)
 EVT_TOOL(ID_TOOLBAR_COLOR_SETTINGS, Settings::OnLoadColorSettings)
 END_EVENT_TABLE()
 
-Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Point, const wxSize & Size): wxFrame(window, wxID_ANY, Title, Point, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN)
+Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Point, const wxSize & Size): wxFrame(window, wxID_ANY, Title, Point, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_Window(window)
 {
 	m_Panel = new wxPanel(this);
 
 	SetupToolbars();
+	m_Window->Disable();
 
 	m_Changed = false;
 	m_DirPathChanged = false;
@@ -96,6 +97,7 @@ void Settings::OnClose(wxCloseEvent & event)
 		}
 	}
 	
+	m_Window->Enable();
 	Destroy();
 }
 
