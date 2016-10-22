@@ -8,6 +8,7 @@ EVT_CLOSE(Settings::OnClose)
 EVT_CHECKBOX(ID_CHECKBOX_CLIPBOARD, Settings::OnClipboardChanged)
 EVT_CHECKBOX(ID_CHECKBOX_SAVE_FILE, Settings::OnSaveFileCheckboxChanged)
 EVT_CHECKBOX(ID_CHECKBOX_PLAY_SOUND, Settings::OnPlaySoundCheckboxChanged)
+EVT_CHECKBOX(ID_CHECKBOX_MINIMIZE_NOTIFY, Settings::OnMinimizeNotifyCheckbox)
 
 // General Settings Buttons
 
@@ -35,13 +36,15 @@ EVT_TOOL(ID_TOOLBAR_GENERAL_SETTINGS, Settings::OnLoadGeneralSettings)
 EVT_TOOL(ID_TOOLBAR_COLOR_SETTINGS, Settings::OnLoadColorSettings)
 END_EVENT_TABLE()
 
-Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Point, const wxSize & Size): wxFrame(window, wxID_ANY, Title, Point, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN)
+Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Point, const wxSize & Size): wxFrame(window, wxID_ANY, Title, Point, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_Window(window)
 {
 	m_Panel = new wxPanel(this);
 
 	SetupToolbars();
+	m_Window->Disable();
 
 	m_Changed = false;
+	m_DirPathChanged = false;
 
 	m_config = new wxFileConfig(wxEmptyString, wxEmptyString, wxT("Settings.ini"), wxT("Settings.ini"), wxCONFIG_USE_RELATIVE_PATH);
 
@@ -57,6 +60,7 @@ Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Po
 	}
 
 	AllocateControls();
+	AllocateTextControls();
 	LoadGeneralSettingsLayout();
 	UpdateGUISettings();
 
@@ -93,6 +97,7 @@ void Settings::OnClose(wxCloseEvent & event)
 		}
 	}
 	
+	m_Window->Enable();
 	Destroy();
 }
 
@@ -102,6 +107,12 @@ void Settings::OnSaveSettings(wxCommandEvent & event)
 	SaveSettings();
 	m_Save->Disable();
 	m_Save->SetLabel(wxT("Saved Changes"));
+
+	if (m_Setting_SaveImages) // Update text ctrl to green if this setting is enabled
+	{
+		m_DirPathChanged = false;
+		UpdateTxtCtrlGreen();
+	}
 }
 
 void Settings::OnClipboardChanged(wxCommandEvent & event)
@@ -127,13 +138,38 @@ void Settings::OnSetFilePath(wxCommandEvent & event)
 
 	if (ImageLocation.ShowModal() == wxID_OK)
 	{
-		m_ImageFilePath = ImageLocation.GetPath();
+		wxString NewDirPath = ImageLocation.GetPath();
+		//m_ImageFilePath = ImageLocation.GetPath();
 
-		if (!m_ImageFilePath.empty())
+		if (!NewDirPath.empty() && m_ImageFilePath.empty()) // If the new directory path is set while the previous one is empty (only possible if ini file was manually changed or first time running program), update the text ctrl.
 		{
+			m_ImageFilePath = NewDirPath;
 			m_Changed = true;
+			m_DirPathChanged = true;
 			m_Save->Enable();
 			m_Save->SetLabel(wxT("Save Changes"));
+			UpdateTxtCtrlOrange();
+		}
+
+		else if (NewDirPath != m_ImageFilePath) // if we changed directory path when there was a previous one, update the text ctrl 
+		{
+			m_ImageFilePath = NewDirPath;
+			m_Changed = true;
+			m_DirPathChanged = true;
+			m_Save->Enable();
+			m_Save->SetLabel(wxT("Save Changes"));
+			UpdateTxtCtrlOrange();
+			
+		}
+
+		else if (NewDirPath == m_ImageFilePath)
+		{
+			// Delete this after i dont need to debug this part anymore
+		}
+
+		else
+		{
+			wxMessageBox(wxT("Note to developer. This message box should not pop up. If so, figure out why"), wxT("Warning"));
 		}
 	}
 }
@@ -146,13 +182,30 @@ void Settings::OnSaveFileCheckboxChanged(wxCommandEvent & event)
 
 	if (event.IsChecked())
 	{
+		if (m_ImageFilePath.empty())
+		{
+			UpdateTxtCtrlRed();
+		}
+
+		else if (m_DirPathChanged)
+		{
+			UpdateTxtCtrlOrange();
+		}
+
+		else
+		{
+			UpdateTxtCtrlGreen();
+		}
+
 		m_SaveFileLocation->Enable();
+		m_DirPathWarning->Show();
 		m_Setting_SaveImages = true;
 	}
 
 	else
 	{
 		m_SaveFileLocation->Disable();
+		m_DirPathWarning->Hide();
 		m_Setting_SaveImages = false;
 	}
 }
@@ -206,7 +259,7 @@ void Settings::OnPlaySoundButton(wxCommandEvent & event)
 {
 	wxSound Sound;
 
-	Sound.Create(wxT("‪C:\\Users\\Sweats\\Desktop\\click_x.wav"), true);
+	Sound.Create(m_SoundFilePath, false);
 
 	if (Sound.IsOk())
 	{
@@ -216,7 +269,7 @@ void Settings::OnPlaySoundButton(wxCommandEvent & event)
 
 	else
 	{
-		wxMessageBox("Sound not loaded successfully!");
+		wxMessageBox(wxT("Sound failed to load!"));
 	}
 }
 
@@ -312,6 +365,23 @@ void Settings::OnLoadColorSettings(wxCommandEvent & event)
 	m_Toolbar->EnableTool(ID_TOOLBAR_COLOR_SETTINGS, false);
 }
 
+void Settings::OnMinimizeNotifyCheckbox(wxCommandEvent & event)
+{
+	m_Changed = true;
+	m_Save->Enable();
+	m_Save->SetLabel(wxT("Save Changes"));
+
+	if (event.IsChecked())
+	{
+		m_Setting_Notify_Minimize = true;
+	}
+
+	else
+	{
+		m_Setting_Notify_Minimize = false;
+	}
+}
+
 void Settings::CreateSettings()
 {
 	m_config->Write(m_ClipboardKey, true);
@@ -322,6 +392,7 @@ void Settings::CreateSettings()
 	m_config->Write(m_UsingCustomOutlineColorKey, false);
 	m_config->Write(m_UsingCustomShapeColorKey, false);
 	m_config->Write(m_UsingCustomBackgroundColorKey, false);
+	m_config->Write(m_MinimizeNotifyKey, true);
 	m_config->Write(m_RedKey_Outline, 255);
 	m_config->Write(m_GreenKey_Outline, 255);
 	m_config->Write(m_BlueKey_Outline, 255);
@@ -340,6 +411,7 @@ void Settings::LoadSettings()
 	m_config->Read(m_DirectoryPathKey, &m_ImageFilePath);
 	m_config->Read(m_PlaySoundKey, &m_Setting_PlaySound);
 	m_config->Read(m_SoundFileKey, &m_SoundFilePath);
+	m_config->Read(m_MinimizeNotifyKey, &m_Setting_Notify_Minimize);
 	m_config->Read(m_UsingCustomOutlineColorKey, &m_Setting_OutlineColor);
 	m_config->Read(m_UsingCustomShapeColorKey, &m_Setting_ShapeColor);
 	m_config->Read(m_UsingCustomBackgroundColorKey, &m_Setting_BackgroundColor);
@@ -352,12 +424,13 @@ void Settings::SaveSettings()
 	m_config->Write(m_DirectoryPathKey, m_ImageFilePath);
 	m_config->Write(m_PlaySoundKey, m_Setting_PlaySound);
 	m_config->Write(m_SoundFileKey, m_SoundFilePath);
+	m_config->Write(m_MinimizeNotifyKey, m_Setting_Notify_Minimize);
 	m_config->Write(m_UsingCustomOutlineColorKey, m_Setting_OutlineColor);
 	m_config->Write(m_UsingCustomShapeColorKey, m_Setting_ShapeColor);
 	m_config->Write(m_UsingCustomBackgroundColorKey, m_Setting_BackgroundColor);
 }
 
-void Settings::UpdateGUISettings() // Incoming spaghetti code.
+void Settings::UpdateGUISettings() // Incoming spaghetti code. This is run when the user opens the window initially
 {
 	if (m_Setting_CopyToClipboard)
 	{
@@ -367,10 +440,21 @@ void Settings::UpdateGUISettings() // Incoming spaghetti code.
 	if (m_Setting_SaveImages)
 	{
 		m_SaveFile->SetValue(true);
+
+		if (m_ImageFilePath.empty())
+		{
+			UpdateTxtCtrlRed();
+		}
+
+		else
+		{
+			UpdateTxtCtrlGreen();
+		}
 	}
 
 	else
 	{
+		m_DirPathWarning->Hide();
 		m_SaveFileLocation->Disable();
 	}
 
@@ -420,6 +504,11 @@ void Settings::UpdateGUISettings() // Incoming spaghetti code.
 	{
 		m_PickBackgroundColorButton->Disable();
 	}
+
+	if (m_Setting_Notify_Minimize)
+	{
+		m_MinimizeNotify->SetValue(true);
+	}
 }
 
 // End spaghetti code
@@ -442,6 +531,12 @@ void Settings::LoadGeneralSettingsLayout()
 	m_PlaySound->Show();
 	m_PlaySoundButton->Show();
 	m_PlaySoundPath->Show();
+	m_MinimizeNotify->Show();
+
+	if (m_Setting_SaveImages)
+	{
+		m_DirPathWarning->Show();
+	}
 
 	m_ColorOutlineCheckBox->Hide();
 	m_PickOutlineColorButton->Hide();
@@ -459,6 +554,8 @@ void Settings::LoadColorSettingsLayout()
 	m_PlaySound->Hide();
 	m_PlaySoundButton->Hide();
 	m_PlaySoundPath->Hide();
+	m_MinimizeNotify->Hide();
+	m_DirPathWarning->Hide();
 
 	m_ColorOutlineCheckBox->Show();
 	m_PickOutlineColorButton->Show();
@@ -494,24 +591,39 @@ void Settings::AllocateCheckBoxes()
 	m_ColorOutlineCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_OUTLINE_COLOR, wxT("Use Custom Outline Color"), wxPoint(10, 20), wxSize(170, 25));
 	m_ColorShapeCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_SHAPE_COLOR, wxT("Use Custom Shape Color"), wxPoint(10, 80), wxSize(200, 20));
 	m_ColorBackgroundCheckBox = new wxCheckBox(m_Panel, ID_CHECKBOX_USE_BACKGROUND_COLOR, wxT("Use Custom Background Color"), wxPoint(10, 130), wxSize(200, 20));
+	m_MinimizeNotify = new wxCheckBox(m_Panel, ID_CHECKBOX_MINIMIZE_NOTIFY, wxT("Notify Me When Program Is Minimized"), wxPoint(10, 190), wxSize(225, 20));
 }
 
-// This makes sure manual changes to the config file don't go over 255 because undefined behavior could result
-/*void Settings::CheckColors()
+void Settings::AllocateTextControls()
 {
-	if (m_Red > 255)
-	{
-		m_Red = 255;
-	}
-
-	if (m_Green > 255)
-	{
-		m_Green = 255;
-	}
-
-	if (m_Blue > 255)
-	{
-		m_Blue = 255;
-	}
+	m_DirPathWarning = new wxTextCtrl(m_Panel, wxID_ANY, wxEmptyString, wxPoint(115, 65), wxSize(200, 35), wxTE_RICH | wxTE_READONLY | wxTE_MULTILINE);
 }
-*/
+
+void Settings::UpdateTxtCtrlGreen()
+{
+	m_DirPathWarning->SetSize(wxSize(110, 25));
+	m_DirPathWarning->SetPosition(wxPoint(115, 70));
+	m_DirPathWarning->Clear();
+	wxString Good = wxT("Directory path set.");
+	m_DirPathWarning->SetDefaultStyle(wxTextAttr(*wxGREEN));
+	m_DirPathWarning->AppendText(Good);
+}
+
+void Settings::UpdateTxtCtrlOrange()
+{
+	m_DirPathWarning->Clear();
+	m_DirPathWarning->SetSize(wxSize(135, 30));
+	m_DirPathWarning->SetPosition(wxPoint(115, 70));
+	m_DirPathWarning->SetDefaultStyle(wxTextAttr(wxColour(255, 165, 0))); // Orange
+	m_DirPathWarning->AppendText(wxT("Directory path changed!"));
+}
+
+void Settings::UpdateTxtCtrlRed()
+{
+	m_DirPathWarning->SetSize(wxSize(200, 25));
+	m_DirPathWarning->SetPosition(wxPoint(115, 65));
+	m_DirPathWarning->Clear();
+	wxString Warning = wxT("Warning! No directory path set. Images will not be saved");
+	m_DirPathWarning->SetDefaultStyle(wxTextAttr(*wxRED));
+	m_DirPathWarning->AppendText(Warning);
+}

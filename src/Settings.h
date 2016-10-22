@@ -14,6 +14,7 @@ public:
 	~Settings();
 
 private:
+	// General Controls
 	wxPanel * m_Panel;
 	wxButton * m_Save; // for save button
 	wxCheckBox * m_Clipboard; // Always Copy Image To Clipboard
@@ -22,9 +23,10 @@ private:
 	wxCheckBox * m_PlaySound; // Enable/Disable sounds
 	wxButton * m_PlaySoundPath; // Set filepath for sound
 	wxButton * m_PlaySoundButton; // Test Sound
+	wxCheckBox * m_MinimizeNotify; // Notify on Minimize
 
 
-	// Color buttons
+	// Color controls
 	wxCheckBox * m_ColorOutlineCheckBox; // "Use custom shape outline color"
 	wxCheckBox * m_ColorShapeCheckBox; // "Use custom shape color"
 	wxCheckBox * m_ColorBackgroundCheckBox; // "Use custom background color"
@@ -34,13 +36,19 @@ private:
 	wxButton * m_PickShapeColorButton; // "Pick Shape Color" Button
 	wxButton * m_PickBackgroundColorButton; // "Pick Background Color" Button.
 
+	// Misc 
+
+	wxWindow * m_Window;
 	wxFileConfig * m_config;
 	wxToolBar * m_Toolbar;
 	wxToolBarToolBase * m_Color_Toolbutton;
 	wxToolBarToolBase * m_General_Toolbutton;
+	wxTextCtrl * m_DirPathWarning;
+	wxTextCtrl * m_SoundPathWarning;
 
 	//wxSound * m_Sound;
 	bool m_Changed;
+	bool m_DirPathChanged;
 
 	void OnSaveSettings(wxCommandEvent & event);
 	void OnClipboardChanged(wxCommandEvent & event);
@@ -58,6 +66,7 @@ private:
 	void OnPickBackgroundColorButton(wxCommandEvent & event);
 	void OnLoadGeneralSettings(wxCommandEvent & event);
 	void OnLoadColorSettings(wxCommandEvent & event);
+	void OnMinimizeNotifyCheckbox(wxCommandEvent & event);
 	void CreateSettings();
 	void LoadSettings();
 	void UpdateGUISettings();
@@ -66,9 +75,13 @@ private:
 	void LoadGeneralSettingsLayout();
 	void LoadColorSettingsLayout();
 	void AllocateControls();
+	void AllocateTextControls();
 
 	void AllocateCheckBoxes();
 	void AllocateButtons();
+	void UpdateTxtCtrlGreen();
+	void UpdateTxtCtrlOrange();
+	void UpdateTxtCtrlRed();
 
 	//void CheckColors();
 	
@@ -79,6 +92,7 @@ private:
 	const wxString m_DirectoryPathKey = wxT("Directory path to store saved images");
 	const wxString m_PlaySoundKey = wxT("Play Sounds");
 	const wxString m_SoundFileKey = wxT("Sound File");
+	const wxString m_MinimizeNotifyKey = wxT("Notify user when program is minimized");
 
 	wxString m_ImageFilePath;
 	wxString m_SoundFilePath;
@@ -109,6 +123,7 @@ private:
 	bool m_Setting_CopyToClipboard;
 	bool m_Setting_SaveImages;
 	bool m_Setting_PlaySound;
+	bool m_Setting_Notify_Minimize;
 
 
 	bool m_Setting_OutlineColor;
@@ -138,6 +153,7 @@ enum
 	ID_BUTTON_PICK_BACKGROUND_COLOR,
 	ID_TOOLBAR_GENERAL_SETTINGS,
 	ID_TOOLBAR_COLOR_SETTINGS,
+	ID_CHECKBOX_MINIMIZE_NOTIFY,
 };
 
 #endif // SETTINGS_H

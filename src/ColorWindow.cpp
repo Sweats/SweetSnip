@@ -9,10 +9,12 @@ EVT_BUTTON(ID_BUTTON_SAVE_COLOR, ColorWindow::OnSave)
 END_EVENT_TABLE()
 
 
-ColorWindow::ColorWindow(wxWindow * Window, const wxString & Title, const wxSize & Size, wxFileConfig * config, int Option): wxFrame(Window, wxID_ANY, Title, wxDefaultPosition, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_config(config)
+ColorWindow::ColorWindow(wxWindow * Window, const wxString & Title, const wxSize & Size, wxFileConfig * config, int Option) : wxFrame(Window, wxID_ANY, Title, wxDefaultPosition, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_config(config), m_Window(Window)
 {
 	m_Changed = false;
 	m_Option = Option;
+
+	m_Window->Disable();
 
 	m_Panel = new wxPanel(this);
 	m_RedSlider = new wxSlider(m_Panel, ID_SLIDER_RED, 0, 0, 255, wxPoint(10, 10), wxSize(255, 20), wxSL_HORIZONTAL | wxSL_LABELS);
@@ -171,6 +173,7 @@ void ColorWindow::OnClose(wxCloseEvent & event)
 	}
 
 	Destroy();
+	m_Window->Enable();
 }
 
 void ColorWindow::SaveColorSettings()

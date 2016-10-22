@@ -2,17 +2,16 @@
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 EVT_MENU(wxID_ABOUT, MainWindow::OnAbout)
-EVT_BUTTON(ID_BUTTON, MainWindow::OnButton)
+EVT_TOOL(ID_SETTINGS, MainWindow::OnSettings)
 END_EVENT_TABLE()
 
 
 
-MainWindow::MainWindow(const wxString & Title): wxFrame(NULL, wxID_ANY, Title)
+MainWindow::MainWindow(const wxString & Title, const wxSize & Size): wxFrame(NULL, wxID_ANY, Title, wxDefaultPosition, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxMINIMIZE_BOX | wxCLIP_CHILDREN)
 {
 	m_Panel = new wxPanel(this);
-	m_Button = new wxButton(m_Panel, ID_BUTTON, wxT("Settings"), wxPoint(100, 100), wxSize(100, 100));
+	LoadToolbarIcons();
 	//m_Menubar = new wxMenuBar;
-
 }
 
 
@@ -21,10 +20,9 @@ MainWindow::~MainWindow()
 
 }
 
-void MainWindow::OnButton(wxCommandEvent & event)
+void MainWindow::OnSettings(wxCommandEvent & event)
 {
 	Settings * settings = new Settings(this, wxT("SweetSnip Settings"), wxDefaultPosition, wxSize(300, 350));
-	m_Button->Disable();
 	settings->Show(true);
 }
 
@@ -32,3 +30,15 @@ void MainWindow::OnAbout(wxCommandEvent & event)
 {
 	wxMessageBox(wxT("This program was created by Sweats using wxWidgets"), wxT("About"));
 }
+
+void MainWindow::LoadToolbarIcons()
+{
+	wxImage::AddHandler(new wxPNGHandler);
+
+	m_Toolbar = CreateToolBar();
+	//m_Toolbar->AddTool(ID_SNIP_NEW, wxT("New SweetSnip"), wxBitmap(wxT("NewSnip.png"), wxBITMAP_TYPE_PNG), wxT("New SweetSnip"));
+	//m_Toolbar->AddTool(ID_SNIP_CLEAR, wxT("Clear SweetSnip"), wxBitmap(wxT("ClearSnip.png"), wxBITMAP_TYPE_PNG), wxT("Clear SweetSnip"));
+	m_Toolbar->AddTool(ID_SETTINGS, wxT("SweetSnip Settings"), wxBitmap(wxT("Settings.png"), wxBITMAP_TYPE_PNG), wxT("SweetSnip Settings"));
+	m_Toolbar->Realize();
+}
+	

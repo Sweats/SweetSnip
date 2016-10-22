@@ -14,7 +14,7 @@ MainApp::~MainApp()
 
 bool MainApp::OnInit()
 {
-	MainWindow * Window = new MainWindow(wxT("SweetSnip"));
+	MainWindow * Window = new MainWindow(wxT("SweetSnip"), wxSize(300, 150));
 	Window->Show(true);
 	return true;
 }
