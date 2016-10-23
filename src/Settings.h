@@ -115,11 +115,6 @@ private:
 	const wxString m_GreenKey_Background = wxT("Background Color: Green");
 	const wxString m_BlueKey_Background = wxT("Background Color: Blue");
 
-	/*int m_Red;
-	int m_Green;
-	int m_Blue;
-	*/
-
 	bool m_Setting_CopyToClipboard;
 	bool m_Setting_SaveImages;
 	bool m_Setting_PlaySound;
@@ -129,8 +124,6 @@ private:
 	bool m_Setting_OutlineColor;
 	bool m_Setting_ShapeColor;
 	bool m_Setting_BackgroundColor;
-
-
 
 	DECLARE_EVENT_TABLE()
 };

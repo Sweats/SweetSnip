@@ -55,6 +55,8 @@
 #include <wx\wx.h>
 #include <wx\sound.h>
 #include <wx\fileconf.h>
-//#include <wx\dcbuffer.h>
+#include <wx\dcgraph.h>
+#include <wx\dcmemory.h>
+#include <wx\dcbuffer.h>
 #include <string>
 

@@ -67,7 +67,6 @@ Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Po
 	m_Save->Disable();
 }
 
-
 Settings::~Settings()
 {
 	delete m_config;
