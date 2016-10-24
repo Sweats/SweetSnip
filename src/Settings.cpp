@@ -29,6 +29,7 @@ EVT_CHECKBOX(ID_CHECKBOX_USE_BACKGROUND_COLOR, Settings::OnUseBackgroundColorChe
 EVT_BUTTON(ID_BUTTON_PICK_OUTLINE_COLOR, Settings::OnPickOutlineColorButton)
 EVT_BUTTON(ID_BUTTON_PICK_SHAPE_COLOR, Settings::OnPickShapeColorButton)
 EVT_BUTTON(ID_BUTTON_PICK_BACKGROUND_COLOR, Settings::OnPickBackgroundColorButton)
+EVT_BUTTON(ID_BUTTON_PICK_TRANSPARENCY, Settings::OnPickTransparencyButton)
 
 // MISC
 
@@ -76,7 +77,7 @@ void Settings::OnClose(wxCloseEvent & event)
 {
 	if (m_Changed)
 	{
-		int Response = wxMessageBox(wxT("You have unsaved changes. Do you wish to save them?"), wxT("Warning"), wxYES_NO | wxCANCEL, this);
+		int Response = wxMessageBox(wxT("You have unsaved changes. Do you wish to save them?"), wxT("Warning"), wxYES_NO | wxCANCEL | wxICON_QUESTION, this);
 
 		if (Response == wxNO)
 		{
@@ -350,6 +351,12 @@ void Settings::OnPickBackgroundColorButton(wxCommandEvent & event)
 	Window->Show(true);
 }
 
+void Settings::OnPickTransparencyButton(wxCommandEvent & event)
+{
+	TransparencyWindow * Window = new TransparencyWindow(this, wxT("Set Shape Transparency Value"), wxSize(310, 220), m_config);
+	Window->Show(true);
+}
+
 void Settings::OnLoadGeneralSettings(wxCommandEvent & event)
 {
 	LoadGeneralSettingsLayout();
@@ -401,6 +408,7 @@ void Settings::CreateSettings()
 	m_config->Write(m_RedKey_Background, 255);
 	m_config->Write(m_GreenKey_Background, 255);
 	m_config->Write(m_BlueKey_Background, 255);
+	m_config->Write(m_TransparencyKey, 100);
 }
 
 void Settings::LoadSettings()
@@ -543,6 +551,7 @@ void Settings::LoadGeneralSettingsLayout()
 	m_PickShapeColorButton->Hide();
 	m_ColorBackgroundCheckBox->Hide();
 	m_PickBackgroundColorButton->Hide();
+	m_PickTransparencyButton->Hide();
 }
 
 void Settings::LoadColorSettingsLayout()
@@ -562,6 +571,7 @@ void Settings::LoadColorSettingsLayout()
 	m_PickShapeColorButton->Show();
 	m_ColorBackgroundCheckBox->Show();
 	m_PickBackgroundColorButton->Show();
+	m_PickTransparencyButton->Show();
 
 }
 
@@ -580,6 +590,7 @@ void Settings::AllocateButtons()
 	m_PickOutlineColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_OUTLINE_COLOR, wxT("Pick Custom Outline Color"), wxPoint(10, 50), wxSize(150, 25));
 	m_PickShapeColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_SHAPE_COLOR, wxT("Pick Custom Shape Color"), wxPoint(10, 100), wxSize(150, 25));
 	m_PickBackgroundColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_BACKGROUND_COLOR, wxT("Pick Custom Background Color"), wxPoint(10, 150), wxSize(200, 25));
+	m_PickTransparencyButton = new wxButton(m_Panel, ID_BUTTON_PICK_TRANSPARENCY, wxT("Pick Shape Transparency Amount"), wxPoint(10, 170), wxSize(200, 25));
 }
 
 void Settings::AllocateCheckBoxes()

@@ -152,7 +152,7 @@ void ColorWindow::OnClose(wxCloseEvent & event)
 {
 	if (m_Changed)
 	{
-		int Response = wxMessageBox(wxT("You have unsaved changes. Do you wish to save them?"), wxT("Warning"), wxYES_NO | wxCANCEL, this);
+		int Response = wxMessageBox(wxT("You have unsaved changes. Do you wish to save them?"), wxT("Warning"), wxYES_NO | wxCANCEL | wxICON_QUESTION, this);
 
 		if (Response == wxNO)
 		{

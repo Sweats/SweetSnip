@@ -10,11 +10,10 @@ END_EVENT_TABLE()
 
 DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size) : wxFrame(Window, wxID_ANY, wxEmptyString, wxDefaultPosition, Size, wxSTAY_ON_TOP), m_Size(Size)
 {
-	m_IsDragging = false;
 	m_ColorsLoaded = false;
 	LoadSettings();
 	this->SetBackgroundColour(wxColour(m_Red_Background, m_Green_Background, m_Blue_Background));
-	this->SetTransparent(20);
+	this->SetTransparent(m_Transparency);
 	m_IsMousePressed = false;
 }
 
@@ -34,6 +33,8 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 {
 	m_IsMousePressed = false;
 	m_End = event.GetPosition();
+	
+	wxWindowDC dc(this);
 
 	if (m_Setting_PlaySound)
 	{
@@ -44,6 +45,14 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 			sound.Play(wxSOUND_ASYNC);
 		}
 	}
+
+	if (m_Setting_CopyToClipboard)
+	{
+		//wxRect ToClipboard(m_End, m_Start);
+		//wxMemoryDC memdc(&dc);
+		//wxBitmap snippet(ToClipboard.x, ToClipboard.y);
+		//memdc.SelectObject(snippet);
+	}
 }
 
 void DesktopFrame::OnMouseMove(wxMouseEvent & event)
@@ -52,7 +61,7 @@ void DesktopFrame::OnMouseMove(wxMouseEvent & event)
 	{
 		// TO DO. Improve this.
 		wxPoint MousePos = event.GetPosition();
-		wxClientDC windc(this);
+		wxWindowDC windc(this);
 		wxBufferedDC dc(&windc, m_Size);
 		
 
@@ -61,6 +70,8 @@ void DesktopFrame::OnMouseMove(wxMouseEvent & event)
 		LoadColors(dc);
 
 		wxRect RectToDraw(MousePos, m_Start);
+
+		dc.Clear();
 		dc.DrawRectangle(RectToDraw);
 	}
 }
@@ -114,6 +125,59 @@ void DesktopFrame::LoadColors(wxGraphicsContext * gc)
 	}
 }
 
+void DesktopFrame::CheckValues() // Incase if user manually changes the ini file for some reason and doesn't go into settings.
+{
+	if (m_Red_Outline > 255)
+	{
+		m_Red_Outline = 255;
+	}
+
+	if (m_Green_Outline > 255)
+	{
+		m_Green_Outline = 255;
+	}
+
+	if (m_Blue_Outline > 255)
+	{
+		m_Blue_Outline = 255;
+	}
+
+	if (m_Red_Shape > 255)
+	{
+		m_Red_Shape = 255;
+	}
+
+	if (m_Green_Shape > 255)
+	{
+		m_Green_Shape = 255;
+	}
+
+	if (m_Blue_Shape > 255)
+	{
+		m_Blue_Shape = 255;
+	}
+
+	if (m_Red_Background > 255)
+	{
+		m_Red_Background = 255;
+	}
+
+	if (m_Green_Background > 255)
+	{
+		m_Green_Background = 255;
+	}
+
+	if (m_Blue_Background > 255)
+	{
+		m_Blue_Background = 255;
+	}
+
+	if (m_Transparency > 255)
+	{
+		m_Transparency = 255;
+	}
+}
+
 void DesktopFrame::LoadSettings()
 {
 	if (!wxFileName::Exists(wxT("Settings.ini")))
@@ -150,6 +214,8 @@ void DesktopFrame::LoadSettings()
 		const wxString m_GreenKey_Outline = wxT("Shape Outline Color: Green");
 		const wxString m_BlueKey_Outline = wxT("Shape Outline Color: Blue");
 
+		const wxString TransparencyKey = wxT("Shape Transparency:");
+
 
 		wxFileConfig config(wxEmptyString, wxEmptyString, wxT("Settings.ini"), wxT("Settings.ini"), wxCONFIG_USE_RELATIVE_PATH);
 		config.Read(m_ClipboardKey, &m_Setting_CopyToClipboard);
@@ -157,6 +223,7 @@ void DesktopFrame::LoadSettings()
 		config.Read(m_DirectoryPathKey, &m_DirectoryFilePath);
 		config.Read(m_PlaySoundKey, &m_Setting_PlaySound);
 		config.Read(m_SoundFileKey, &m_SoundPath);
+		config.Read(TransparencyKey, &m_Transparency);
 		//config.Read(m_MinimizeNotifyKey, &m_setting_m)
 		config.Read(m_RedKey_Outline, &m_Red_Outline);
 		config.Read(m_GreenKey_Outline, &m_Green_Outline);

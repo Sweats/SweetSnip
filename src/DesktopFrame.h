@@ -21,6 +21,7 @@ private:
 	void LoadColors(wxBufferedDC & dc);
 	void LoadColors(wxGraphicsContext * gc);
 	void LoadSettings();
+	void CheckValues();
 
 	int m_Red_Outline;
 	int m_Green_Outline;
@@ -34,6 +35,8 @@ private:
 	int m_Green_Background;
 	int m_Blue_Background;
 
+	int m_Transparency;
+
 	bool m_Setting_CopyToClipboard;
 	bool m_Setting_SaveImages;
 	bool m_Setting_PlaySound;
@@ -46,7 +49,6 @@ private:
 	wxString m_DirectoryFilePath;
 
 
-	bool m_IsDragging;
 	wxPoint m_Start;
 	wxPoint m_End;
 	wxSize m_Size;

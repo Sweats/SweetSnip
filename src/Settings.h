@@ -2,6 +2,7 @@
 
 #include "Includes.h"
 #include "ColorWindow.h"
+#include "TransparencyWindow.h"
 
 #ifndef SETTINGS_H
 #define SETTINGS_H
@@ -36,6 +37,8 @@ private:
 	wxButton * m_PickShapeColorButton; // "Pick Shape Color" Button
 	wxButton * m_PickBackgroundColorButton; // "Pick Background Color" Button.
 
+	wxButton * m_PickTransparencyButton;
+
 	// Misc 
 
 	wxWindow * m_Window;
@@ -67,6 +70,7 @@ private:
 	void OnLoadGeneralSettings(wxCommandEvent & event);
 	void OnLoadColorSettings(wxCommandEvent & event);
 	void OnMinimizeNotifyCheckbox(wxCommandEvent & event);
+	void OnPickTransparencyButton(wxCommandEvent & event);
 	void CreateSettings();
 	void LoadSettings();
 	void UpdateGUISettings();
@@ -115,6 +119,8 @@ private:
 	const wxString m_GreenKey_Background = wxT("Background Color: Green");
 	const wxString m_BlueKey_Background = wxT("Background Color: Blue");
 
+	const wxString m_TransparencyKey = wxT("Shape Transparency:");
+
 	bool m_Setting_CopyToClipboard;
 	bool m_Setting_SaveImages;
 	bool m_Setting_PlaySound;
@@ -147,6 +153,7 @@ enum
 	ID_TOOLBAR_GENERAL_SETTINGS,
 	ID_TOOLBAR_COLOR_SETTINGS,
 	ID_CHECKBOX_MINIMIZE_NOTIFY,
+	ID_BUTTON_PICK_TRANSPARENCY,
 };
 
 #endif // SETTINGS_H
