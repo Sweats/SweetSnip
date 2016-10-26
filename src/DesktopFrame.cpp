@@ -17,6 +17,7 @@ DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID)
 	this->SetBackgroundColour(wxColour(m_Red_Background, m_Green_Background, m_Blue_Background));
 	this->SetTransparent(m_Transparency);
 	this->SetFocus(); // doesn't always work if we're entering this window from hotkey
+	this->SetCursor(wxCursor(wxStockCursor::wxCURSOR_CROSS));
 
 	m_IsMousePressed = false;
 }
@@ -24,7 +25,6 @@ DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID)
 
 DesktopFrame::~DesktopFrame()
 {
-
 }
 
 void DesktopFrame::OnMouseDown(wxMouseEvent & event)
@@ -97,6 +97,7 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 		CroppedImage.SaveFile(wxT("test.jpg"), wxBITMAP_TYPE_JPEG);
 	}
 
+	wxSetCursor(wxCursor(wxNullCursor));
 	this->Destroy();
 	m_Window->Show();
 }
@@ -166,7 +167,7 @@ void DesktopFrame::LoadColors(wxBufferedDC & dc)
 	m_ColorsLoaded = true;
 }
 
-// For testing purposes
+// For testing purposes. Delete this at some point
 void DesktopFrame::LoadColors(wxGraphicsContext * gc)
 {
 	if (m_Setting_OutlineColor)

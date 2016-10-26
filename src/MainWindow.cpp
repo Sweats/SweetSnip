@@ -20,7 +20,6 @@ MainWindow::MainWindow(const wxString & Title, const wxSize & Size): wxFrame(NUL
 MainWindow::~MainWindow()
 {
 	this->UnregisterHotKey(ID_HOTKEY);
-
 }
 
 void MainWindow::OnSettings(wxCommandEvent & event)
@@ -63,7 +62,7 @@ void MainWindow::OnMinimize(wxIconizeEvent & event)
 
 		if (m_Setting_Minimize)
 		{
-			wxNotificationMessage MinimizeMessage(wxT("Notice"), wxT("The program has been minimized"), this);
+			wxNotificationMessage MinimizeMessage(wxT("Notice"), wxT("SweetSnip has been minimized. Press " + m_HotkeyModifier + " + " + m_HotkeyLetter + " to take a snip at any time"), this);
 			MinimizeMessage.Show();
 		}
 	}
@@ -92,6 +91,9 @@ void MainWindow::LoadSettings()
 	if (!wxFileName::Exists(wxT("Settings.ini")))
 	{
 		m_Setting_Minimize = true;
+		m_HotkeyLetter = "E";
+		m_HotkeyModifier = "CTRL";
+		this->RegisterHotKey(ID_HOTKEY,	wxMOD_CONTROL, 'E');
 	}
 
 	else

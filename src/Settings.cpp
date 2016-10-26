@@ -65,6 +65,8 @@ Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Po
 		m_Setting_OutlineColor = false;
 		m_Setting_ShapeColor = false;
 		m_Setting_BackgroundColor = false;
+		m_HotkeyModifier = "CTRL";
+		m_HotkeyLetter = "E";
 		CreateSettings();
 	}
 
@@ -472,8 +474,8 @@ void Settings::CreateSettings()
 	m_config->Write(m_GreenKey_Background, 255);
 	m_config->Write(m_BlueKey_Background, 255);
 	m_config->Write(m_TransparencyKey, 100);
-	m_config->Write(m_HotkeyModifierKey, wxT("SHIFT"));
-	m_config->Write(m_HotkeyLetterKey, wxT("A"));
+	m_config->Write(m_HotkeyModifierKey, wxT("CTRL"));
+	m_config->Write(m_HotkeyLetterKey, wxT("E"));
 }
 
 void Settings::LoadSettings()
@@ -748,7 +750,6 @@ void Settings::AllocateHotkeyControls()
 	m_HotkeyLetterLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Choose Letter"), wxPoint(10, 60), wxSize(75, 20));
 	m_HotKeyModifierLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Choose Modifier"), wxPoint(10, 30), wxSize(90, 20));
 	m_HotkeyNote = new wxStaticText(m_Panel, wxID_ANY, wxT("Note: Key changes will be applied next time program is restarted"), wxPoint(5, 160), wxSize(280, 60));
-
 
 }
 

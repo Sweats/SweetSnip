@@ -67,4 +67,5 @@
 #include <wx\clipbrd.h>
 #include <wx\window.h>
 #include <wx\notifmsg.h>
+#include <wx\gdicmn.h>
 
