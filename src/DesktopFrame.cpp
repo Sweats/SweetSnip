@@ -96,8 +96,7 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 		wxBitmap CroppedImage = ScreenBitmap.GetSubBitmap(CroppedRegion);
 		CroppedImage.SaveFile(wxT("test.jpg"), wxBITMAP_TYPE_JPEG);
 	}
-
-	wxSetCursor(wxCursor(wxNullCursor));
+	
 	this->Destroy();
 	m_Window->Show();
 }
