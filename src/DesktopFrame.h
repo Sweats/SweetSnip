@@ -9,7 +9,7 @@
 class DesktopFrame: public wxFrame
 {
 public:
-	DesktopFrame(wxWindow * Window, const wxSize & Size);
+	DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID);
 	~DesktopFrame();
 
 private:
@@ -20,6 +20,8 @@ private:
 	bool m_ColorsLoaded;
 	void LoadColors(wxBufferedDC & dc);
 	void LoadColors(wxGraphicsContext * gc);
+	void OnESCKeyPressed(wxKeyEvent & event);
+	void OnClose(wxCloseEvent & event);
 	void LoadSettings();
 	void CheckValues();
 
@@ -48,10 +50,13 @@ private:
 	wxString m_SoundPath;
 	wxString m_DirectoryFilePath;
 
+	wxWindow * m_Window;
+
 
 	wxPoint m_Start;
 	wxPoint m_End;
 	wxSize m_Size;
+
 
 	DECLARE_EVENT_TABLE()
 

@@ -4,16 +4,20 @@ BEGIN_EVENT_TABLE(DesktopFrame, wxFrame)
 EVT_LEFT_DOWN(DesktopFrame::OnMouseDown)
 EVT_LEFT_UP(DesktopFrame::OnMouseUp)
 EVT_MOTION(DesktopFrame::OnMouseMove)
+EVT_KEY_DOWN(DesktopFrame::OnESCKeyPressed)
+EVT_CLOSE(DesktopFrame::OnClose)
 END_EVENT_TABLE()
 
 
-
-DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size) : wxFrame(Window, wxID_ANY, wxEmptyString, wxDefaultPosition, Size, wxSTAY_ON_TOP), m_Size(Size)
+DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID) : wxFrame(Window, WindowID, wxEmptyString, wxDefaultPosition, Size, wxSTAY_ON_TOP), m_Size(Size), m_Window(Window)
 {
 	m_ColorsLoaded = false;
 	LoadSettings();
+	Window->Hide();
 	this->SetBackgroundColour(wxColour(m_Red_Background, m_Green_Background, m_Blue_Background));
 	this->SetTransparent(m_Transparency);
+	this->SetFocus(); // doesn't always work if we're entering this window from hotkey
+
 	m_IsMousePressed = false;
 }
 
@@ -31,10 +35,16 @@ void DesktopFrame::OnMouseDown(wxMouseEvent & event)
 
 void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 {
+	// TO DO: Don't blit the entire screen then get portion. blit only what we need.
 	m_IsMousePressed = false;
-	m_End = event.GetPosition();
 	
 	wxWindowDC dc(this);
+	wxScreenDC screendc;
+	wxMemoryDC memdc(&dc);
+
+	this->Hide();
+	m_End = event.GetPosition();
+	wxRect CroppedRegion(m_End, m_Start);
 
 	if (m_Setting_PlaySound)
 	{
@@ -48,11 +58,47 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 
 	if (m_Setting_CopyToClipboard)
 	{
-		//wxRect ToClipboard(m_End, m_Start);
-		//wxMemoryDC memdc(&dc);
-		//wxBitmap snippet(ToClipboard.x, ToClipboard.y);
-		//memdc.SelectObject(snippet);
+		#ifdef __linux__ 
+		wxTheClipboard->UsePrimarySelection(true);
+		#endif
+
+		wxSize ScreenRes = screendc.GetSize();
+		wxBitmap ScreenBitmap(ScreenRes.GetWidth(), ScreenRes.GetHeight());
+		memdc.SelectObject(ScreenBitmap);
+		memdc.Blit(0, 0, ScreenRes.GetWidth(), ScreenRes.GetHeight(), &screendc, 0, 0);
+		memdc.SelectObject(wxNullBitmap);
+		wxBitmap Snippet = ScreenBitmap.GetSubBitmap(CroppedRegion);
+
+		if (wxTheClipboard->Open())
+		{
+			wxTheClipboard->Clear();
+			wxTheClipboard->SetData(new wxBitmapDataObject(Snippet));
+			wxTheClipboard->Close();
+		}
 	}
+
+	if (m_Setting_SaveImages)
+	{
+		wxImage::AddHandler(new wxJPEGHandler);
+		wxMemoryDC memdc(&dc);
+
+		wxSize ScreenRes = screendc.GetSize();
+
+		//wxScreenDC screendc;
+		//wxBitmap snippet(CroppedRegion.GetWidth(), CroppedRegion.GetHeight());
+		wxBitmap ScreenBitmap(ScreenRes.GetWidth(), ScreenRes.GetHeight());
+		memdc.SelectObject(ScreenBitmap);
+		memdc.Blit(0, 0, ScreenRes.GetX(), ScreenRes.GetY(), &screendc, 0, 0); // works but slow
+		memdc.SelectObject(wxNullBitmap);
+		//memdc.Blit(m_End, CroppedRegion.GetSize(), &screendc, m_Start);
+		//memdc.DrawBitmap(snippet, ScreenRes.x, ScreenRes.y);
+
+		wxBitmap CroppedImage = ScreenBitmap.GetSubBitmap(CroppedRegion);
+		CroppedImage.SaveFile(wxT("test.jpg"), wxBITMAP_TYPE_JPEG);
+	}
+
+	this->Destroy();
+	m_Window->Show();
 }
 
 void DesktopFrame::OnMouseMove(wxMouseEvent & event)
@@ -60,20 +106,39 @@ void DesktopFrame::OnMouseMove(wxMouseEvent & event)
 	if (m_IsMousePressed)
 	{
 		// TO DO. Improve this.
-		wxPoint MousePos = event.GetPosition();
 		wxWindowDC windc(this);
-		wxBufferedDC dc(&windc, m_Size);
-		
-
-		//wxGraphicsContext * gc = wxGraphicsContext::Create(dc);
+		//wxGraphicsContext * gc = wxGraphicsContext::Create(windc);
+		wxBufferedDC dc(&windc);
 
 		LoadColors(dc);
+		//LoadColors(gc);
+
+		wxPoint MousePos = event.GetLogicalPosition(dc);
 
 		wxRect RectToDraw(MousePos, m_Start);
 
 		dc.Clear();
 		dc.DrawRectangle(RectToDraw);
+
+		/*if (m_Start.x > MousePos.x)
+		{
+			gc->DrawRectangle(RectToDraw.x, RectToDraw.y, m_Start.x - MousePos.x, m_Start.y - MousePos.y);
+		}
+
+		else if (m_Start.x < MousePos.x)
+		{
+			gc->DrawRectangle(RectToDraw.x, RectToDraw.y, m_Start.x + MousePos.x, m_Start.y - MousePos.y);
+		}
+		*/
+
+		//delete gc;
 	}
+}
+
+void DesktopFrame::OnClose(wxCloseEvent & event) // incase if the user closes the window by hitting alt tab then close
+{
+	this->Destroy();
+	m_Window->Show();
 }
 
 void DesktopFrame::LoadColors(wxBufferedDC & dc)
@@ -90,7 +155,7 @@ void DesktopFrame::LoadColors(wxBufferedDC & dc)
 
 	if (m_Setting_ShapeColor)
 	{
-		dc.SetBrush(wxBrush(wxColour(m_Red_Shape, m_Green_Shape, m_Blue_Shape)));
+		dc.SetBrush(wxBrush(wxColour(m_Red_Shape, m_Green_Shape, m_Blue_Shape, m_Transparency)));//, wxBRUSHSTYLE_TRANSPARENT);
 	}
 
 	else
@@ -116,12 +181,21 @@ void DesktopFrame::LoadColors(wxGraphicsContext * gc)
 
 	if (m_Setting_ShapeColor)
 	{
-		gc->SetBrush(wxBrush(wxColour(m_Red_Shape, m_Green_Shape, m_Blue_Shape)));
+		gc->SetBrush(wxBrush(wxColour(m_Red_Shape, m_Green_Shape, m_Blue_Shape, m_Transparency)));
 	}
 
 	else
 	{
 		gc->SetBrush(wxBrush(wxColour(255, 255, 255, 100))); // White brush.
+	}
+}
+
+void DesktopFrame::OnESCKeyPressed(wxKeyEvent & event)
+{
+	if (event.GetKeyCode() == wxKeyCode::WXK_ESCAPE)
+	{
+		this->Destroy();
+		m_Window->Show();
 	}
 }
 

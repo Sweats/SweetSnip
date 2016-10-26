@@ -4,20 +4,22 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 EVT_MENU(wxID_ABOUT, MainWindow::OnAbout)
 EVT_TOOL(ID_SETTINGS, MainWindow::OnSettings)
 EVT_TOOL(ID_SNIP_NEW, MainWindow::OnNewSnip)
+EVT_ICONIZE(MainWindow::OnMinimize)
+EVT_HOTKEY(ID_HOTKEY, MainWindow::OnHotkeyPressed)
 END_EVENT_TABLE()
-
 
 
 MainWindow::MainWindow(const wxString & Title, const wxSize & Size): wxFrame(NULL, wxID_ANY, Title, wxDefaultPosition, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxMINIMIZE_BOX | wxCLIP_CHILDREN)
 {
 	m_Panel = new wxPanel(this);
 	LoadToolbarIcons();
-	//m_Menubar = new wxMenuBar;
+	LoadSettings();
 }
 
 
 MainWindow::~MainWindow()
 {
+	this->UnregisterHotKey(ID_HOTKEY);
 
 }
 
@@ -36,20 +38,8 @@ void MainWindow::OnNewSnip(wxCommandEvent & event)
 {
 	wxSize ScreenResolution = GetScreenResolution();
 
-	DesktopFrame * test = new DesktopFrame(this, ScreenResolution);
-	test->Show();
-	//this->Hide();
-
-
-	//test->Close(true);
-	//this->Show();
-
-	//dc.SetBrush(wxBrush(wxColour(255, 0, 0)))
-	//dc.DrawRectangle(20, 40, 200, 200);
-
-	
-
-	//wxSleep(1);
+	DesktopFrame * SnippetWindow = new DesktopFrame(this, ScreenResolution, DESKTOP_FRAME);
+	SnippetWindow->Show();
 }
 
 void MainWindow::LoadToolbarIcons()
@@ -57,39 +47,91 @@ void MainWindow::LoadToolbarIcons()
 	wxImage::AddHandler(new wxPNGHandler);
 
 	m_Toolbar = CreateToolBar(wxTB_DEFAULT_STYLE | wxTB_TEXT);
-	m_Toolbar->AddTool(ID_SNIP_NEW, wxT("New SweetSnip"), wxBitmap(wxT("NewSnip.png"), wxBITMAP_TYPE_PNG), wxT("New SweetSnip"));
+	m_Toolbar->AddTool(ID_SNIP_NEW, wxT("&New SweetSnip"), wxBitmap(wxT("NewSnip.png"), wxBITMAP_TYPE_PNG), wxT("New SweetSnip"));
 	//m_Toolbar->AddTool(ID_SNIP_CLEAR, wxT("Clear SweetSnip"), wxBitmap(wxT("ClearSnip.png"), wxBITMAP_TYPE_PNG), wxT("Clear SweetSnip"));
 	m_Toolbar->AddTool(ID_SETTINGS, wxT("SweetSnip Settings"), wxBitmap(wxT("Settings.png"), wxBITMAP_TYPE_PNG), wxT("SweetSnip Settings"));
 	m_Toolbar->Realize();
 }
 
-/*wxBitmap MainWindow::CaptureDesktop(wxScreenDC & dc, int x, int y)
+void MainWindow::OnMinimize(wxIconizeEvent & event)
 {
-	wxBitmap Screenshot(x, y);
-	wxMemoryDC memdc;
-	memdc.SelectObject(Screenshot);
-	memdc.Blit(0, 0, x, y, &dc, 0, 0);
-	memdc.SelectObject(wxNullBitmap);
-	return Screenshot;
-}
-
-
-void MainWindow::ModifyImage(wxImage & image, int x, int y, int alpha)
-{
-	for (int i = 0; i < x; i++)
+	if (event.IsIconized())
 	{
-		for (int j = 0; j < y; j++)
+		const wxString MinimizeNotifyKey = wxT("Notify user when program is minimized");
+		wxFileConfig Config(wxEmptyString, wxEmptyString, wxT("Settings.ini"), wxT("Settings.ini"), wxCONFIG_USE_RELATIVE_PATH);
+		Config.Read(MinimizeNotifyKey, &m_Setting_Minimize);
+
+		if (m_Setting_Minimize)
 		{
-			image.SetRGB(x, y, m_Red_Background, m_Green_Background, m_Blue_Background);
-			image.SetAlpha(x, y, alpha);
+			wxNotificationMessage MinimizeMessage(wxT("Notice"), wxT("The program has been minimized"), this);
+			MinimizeMessage.Show();
 		}
 	}
 }
-*/
+
+void MainWindow::OnHotkeyPressed(wxKeyEvent & event)
+{
+	if (wxWindow::FindWindowById(DESKTOP_FRAME))
+	{
+		return;
+	}
+
+	wxSize ScreenResolution = GetScreenResolution();
+	DesktopFrame * SnippetWindow = new DesktopFrame(this, ScreenResolution, DESKTOP_FRAME);
+	SnippetWindow->Show();
+}
 
 wxSize MainWindow::GetScreenResolution()
 {
 	wxScreenDC dc;
 	return dc.GetSize();
+}
+
+void MainWindow::LoadSettings()
+{
+	if (!wxFileName::Exists(wxT("Settings.ini")))
+	{
+		m_Setting_Minimize = true;
+	}
+
+	else
+	{
+		const wxString m_HotkeyModifierKey = wxT("Hotkey Modifier");
+		const wxString m_HotkeyLetterKey = wxT("Hotkey Letter");
+		wxFileConfig Config(wxEmptyString, wxEmptyString, wxT("Settings.ini"), wxT("Settings.ini"), wxCONFIG_USE_RELATIVE_PATH);
+		Config.Read(m_HotkeyModifierKey, &m_HotkeyModifier);
+		Config.Read(m_HotkeyLetterKey, &m_HotkeyLetter);
+		SetHotKey();
+	}
+}
+
+void MainWindow::SetHotKey()
+{
+	int Modifier = 0;
+
+	if (!m_HotkeyModifier.empty() && !m_HotkeyLetter.empty())
+	{
+		if (m_HotkeyModifier == "SHIFT")
+		{
+			Modifier = wxMOD_SHIFT;
+		}
+
+		else if (m_HotkeyModifier == "ALT")
+		{
+			Modifier = wxMOD_ALT;
+		}
+
+		else if (m_HotkeyModifier == "CTRL")
+		{
+			Modifier = wxMOD_CONTROL;
+		}
+
+		#ifdef _WIN32 // RegisterHotKey always fails under non-MSW platforms.
+		if (!this->RegisterHotKey(ID_HOTKEY, Modifier, m_HotkeyLetter.at(0)))
+		{
+			wxMessageBox(wxT("The hotkey that was previously saved is not usable because the system already has this hotkey set. Please pick a different one"), wxT("Warning"));
+		}
+		#endif	
+	}
 }
 	

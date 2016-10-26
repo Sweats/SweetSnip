@@ -163,7 +163,7 @@ void ColorWindow::OnClose(wxCloseEvent & event)
 		{
 			m_Changed = false;
 			SaveColorSettings();
-			Destroy();
+			this->Destroy();
 		}
 
 		else
@@ -172,8 +172,9 @@ void ColorWindow::OnClose(wxCloseEvent & event)
 		}
 	}
 
-	Destroy();
+	this->Destroy();
 	m_Window->Enable();
+	m_Window->Show();
 }
 
 void ColorWindow::SaveColorSettings()

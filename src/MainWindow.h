@@ -20,18 +20,27 @@ private:
 	wxMenuBar * m_Menubar;
 	wxToolBar * m_Toolbar;
 
+	wxMenuBar * m_MenuBar;
+	wxMenu * m_menu;
+
 	int m_option; // for the defines
+
+	bool m_SnipTaken;
 
 	void OnSettings(wxCommandEvent & event);
 	void OnAbout(wxCommandEvent & event);
 	void OnNewSnip(wxCommandEvent & event);
+	void OnMinimize(wxIconizeEvent &  event);
+	void OnHotkeyPressed(wxKeyEvent & event);
 	void LoadToolbarIcons();
-	void LoadColors(wxScreenDC & dc);
 	void LoadSettings();
-	//void ModifyImage(wxImage & image, int x, int y, int alpha);
+	void SetHotKey();
 	wxSize GetScreenResolution();
 
-	//wxBitmap CaptureDesktop(wxScreenDC & dc, int x, int y);
+
+	wxString m_HotkeyLetter;
+	wxString m_HotkeyModifier;
+	bool m_Setting_Minimize;
 
 	DECLARE_EVENT_TABLE()
 };
@@ -47,5 +56,6 @@ enum
 	ID_SNIP_SAVE,
 	ID_SNIP_CANCEL,
 	ID_ABOUT,
+	ID_HOTKEY,
 };
 

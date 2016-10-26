@@ -38,6 +38,18 @@ private:
 	wxButton * m_PickBackgroundColorButton; // "Pick Background Color" Button.
 
 	wxButton * m_PickTransparencyButton;
+	
+
+	// Hotkey controls
+	wxComboBox * m_HotkeyModiferList;
+	wxComboBox * m_HotkeyList;
+	wxTextCtrl * m_HotKeyCtrl;
+	wxStaticText * m_HotkeyLabel;
+	wxStaticText * m_HotkeyLetterLabel;
+	wxStaticText * m_HotKeyModifierLabel;
+	wxStaticText * m_HotkeyNote;
+	//wxStaticText * m_HotkeyShortcutLabel;
+	//wxButton * m_SetHotKeyButton;
 
 	// Misc 
 
@@ -46,6 +58,7 @@ private:
 	wxToolBar * m_Toolbar;
 	wxToolBarToolBase * m_Color_Toolbutton;
 	wxToolBarToolBase * m_General_Toolbutton;
+	wxToolBarToolBase * m_Hotkey_Toolbutton;
 	wxTextCtrl * m_DirPathWarning;
 	wxTextCtrl * m_SoundPathWarning;
 
@@ -71,6 +84,9 @@ private:
 	void OnLoadColorSettings(wxCommandEvent & event);
 	void OnMinimizeNotifyCheckbox(wxCommandEvent & event);
 	void OnPickTransparencyButton(wxCommandEvent & event);
+	void OnLoadHotkeySettings(wxCommandEvent & event);
+	void OnPickHotkeyLetter(wxCommandEvent & event);
+	void OnPickHotkeyModifier(wxCommandEvent & event);
 	void CreateSettings();
 	void LoadSettings();
 	void UpdateGUISettings();
@@ -78,8 +94,10 @@ private:
 	void SetupToolbars();
 	void LoadGeneralSettingsLayout();
 	void LoadColorSettingsLayout();
+	void LoadHotkeySettingsLayout();
 	void AllocateControls();
 	void AllocateTextControls();
+	void AllocateHotkeyControls();
 
 	void AllocateCheckBoxes();
 	void AllocateButtons();
@@ -100,6 +118,10 @@ private:
 
 	wxString m_ImageFilePath;
 	wxString m_SoundFilePath;
+	wxString m_HotKeyModifierSetting;
+	wxString m_HotKeySetting; // make sure to read from ini file later
+	wxString m_HotkeyLetter;
+	wxString m_HotkeyModifier;
 
 	// COLORS
 	
@@ -119,13 +141,16 @@ private:
 	const wxString m_GreenKey_Background = wxT("Background Color: Green");
 	const wxString m_BlueKey_Background = wxT("Background Color: Blue");
 
-	const wxString m_TransparencyKey = wxT("Shape Transparency:");
+	const wxString m_TransparencyKey = wxT("Shape Transparency");
+
+	const wxString m_HotkeyModifierKey = wxT("Hotkey Modifier");
+	const wxString m_HotkeyLetterKey = wxT("Hotkey Letter");
+
 
 	bool m_Setting_CopyToClipboard;
 	bool m_Setting_SaveImages;
 	bool m_Setting_PlaySound;
 	bool m_Setting_Notify_Minimize;
-
 
 	bool m_Setting_OutlineColor;
 	bool m_Setting_ShapeColor;
@@ -152,8 +177,13 @@ enum
 	ID_BUTTON_PICK_BACKGROUND_COLOR,
 	ID_TOOLBAR_GENERAL_SETTINGS,
 	ID_TOOLBAR_COLOR_SETTINGS,
+	ID_TOOLBAR_HOTKEY_SETTINGS,
 	ID_CHECKBOX_MINIMIZE_NOTIFY,
 	ID_BUTTON_PICK_TRANSPARENCY,
+	ID_COMBOBOX_PICK_HOTKEY_MODIFIER,
+	ID_COMBOBOX_PICK_HOTKEY,
+	ID_TXTCTRL_HOTKEY,
+	//ID_BUTTON_SET_HOTKEY,
 };
 
 #endif // SETTINGS_H

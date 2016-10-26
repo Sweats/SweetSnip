@@ -31,14 +31,20 @@ EVT_BUTTON(ID_BUTTON_PICK_SHAPE_COLOR, Settings::OnPickShapeColorButton)
 EVT_BUTTON(ID_BUTTON_PICK_BACKGROUND_COLOR, Settings::OnPickBackgroundColorButton)
 EVT_BUTTON(ID_BUTTON_PICK_TRANSPARENCY, Settings::OnPickTransparencyButton)
 
+// Hotkey Settings Controls
+EVT_COMBOBOX(ID_COMBOBOX_PICK_HOTKEY, Settings::OnPickHotkeyLetter)
+EVT_COMBOBOX(ID_COMBOBOX_PICK_HOTKEY_MODIFIER, Settings::OnPickHotkeyModifier)
+
 // MISC
 
 EVT_TOOL(ID_TOOLBAR_GENERAL_SETTINGS, Settings::OnLoadGeneralSettings)
 EVT_TOOL(ID_TOOLBAR_COLOR_SETTINGS, Settings::OnLoadColorSettings)
+EVT_TOOL(ID_TOOLBAR_HOTKEY_SETTINGS, Settings::OnLoadHotkeySettings)
 END_EVENT_TABLE()
 
 Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Point, const wxSize & Size): wxFrame(window, wxID_ANY, Title, Point, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_Window(window)
 {
+
 	m_Panel = new wxPanel(this);
 
 	SetupToolbars();
@@ -52,6 +58,13 @@ Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Po
 
 	if (!wxFileName::Exists(wxT("Settings.ini")))
 	{
+		m_Setting_CopyToClipboard = true;
+		m_Setting_SaveImages = false;
+		m_Setting_PlaySound = false;
+		m_Setting_Notify_Minimize = true;
+		m_Setting_OutlineColor = false;
+		m_Setting_ShapeColor = false;
+		m_Setting_BackgroundColor = false;
 		CreateSettings();
 	}
 
@@ -62,6 +75,7 @@ Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Po
 
 	AllocateControls();
 	AllocateTextControls();
+	AllocateHotkeyControls();
 	LoadGeneralSettingsLayout();
 	UpdateGUISettings();
 
@@ -249,6 +263,7 @@ void Settings::OnPlaySoundFilePath(wxCommandEvent & event)
 		{
 			m_Save->Enable();
 			m_Save->SetLabel(wxT("Save Changes"));
+			m_PlaySoundButton->Enable();
 			m_Changed = true;
 		}
 
@@ -361,6 +376,7 @@ void Settings::OnLoadGeneralSettings(wxCommandEvent & event)
 {
 	LoadGeneralSettingsLayout();
 	m_Toolbar->EnableTool(ID_TOOLBAR_GENERAL_SETTINGS, false);
+	m_Toolbar->EnableTool(ID_TOOLBAR_HOTKEY_SETTINGS, true);
 	m_Toolbar->EnableTool(ID_TOOLBAR_COLOR_SETTINGS, true);
 }
 
@@ -368,7 +384,16 @@ void Settings::OnLoadColorSettings(wxCommandEvent & event)
 {
 	LoadColorSettingsLayout();
 	m_Toolbar->EnableTool(ID_TOOLBAR_GENERAL_SETTINGS, true);
+	m_Toolbar->EnableTool(ID_TOOLBAR_HOTKEY_SETTINGS, true);
 	m_Toolbar->EnableTool(ID_TOOLBAR_COLOR_SETTINGS, false);
+}
+
+void Settings::OnLoadHotkeySettings(wxCommandEvent & event)
+{
+	LoadHotkeySettingsLayout();
+	m_Toolbar->EnableTool(ID_TOOLBAR_HOTKEY_SETTINGS, false);
+	m_Toolbar->EnableTool(ID_TOOLBAR_GENERAL_SETTINGS, true);
+	m_Toolbar->EnableTool(ID_TOOLBAR_COLOR_SETTINGS, true);
 }
 
 void Settings::OnMinimizeNotifyCheckbox(wxCommandEvent & event)
@@ -387,6 +412,44 @@ void Settings::OnMinimizeNotifyCheckbox(wxCommandEvent & event)
 		m_Setting_Notify_Minimize = false;
 	}
 }
+
+void Settings::OnPickHotkeyLetter(wxCommandEvent & event)
+{
+	wxString NewHotkeyLetter = event.GetString();
+
+	if (NewHotkeyLetter != m_HotkeyLetter)
+	{
+		m_HotkeyLetter = NewHotkeyLetter;
+		m_Changed = true;
+		m_Save->Enable();
+		m_Save->SetLabel(wxT("Save Changes"));
+		wxString Final = m_HotkeyModifier + " + " + m_HotkeyLetter;
+		m_HotKeyCtrl->SetLabelText(Final);
+		//m_HotkeyShortcutLabel->SetLabelText(Final);
+	}
+}
+
+void Settings::OnPickHotkeyModifier(wxCommandEvent & event)
+{
+	wxString NewHotkeyModifer = event.GetString();
+
+	if (NewHotkeyModifer != m_HotkeyModifier)
+	{
+		m_HotkeyModifier = NewHotkeyModifer;
+		m_Changed = true;
+		m_Save->Enable();
+		m_Save->SetLabel(wxT("Save Changes"));
+		wxString Final = m_HotkeyModifier + " + " + m_HotkeyLetter;
+		m_HotKeyCtrl->SetLabelText(Final);
+		//m_HotkeyShortcutLabel->SetLabelText(Final);
+	}
+}
+
+/*void Settings::OnSetHotkeyButton(wxCommandEvent & event)
+{
+
+}
+*/
 
 void Settings::CreateSettings()
 {
@@ -409,6 +472,8 @@ void Settings::CreateSettings()
 	m_config->Write(m_GreenKey_Background, 255);
 	m_config->Write(m_BlueKey_Background, 255);
 	m_config->Write(m_TransparencyKey, 100);
+	m_config->Write(m_HotkeyModifierKey, wxT("SHIFT"));
+	m_config->Write(m_HotkeyLetterKey, wxT("A"));
 }
 
 void Settings::LoadSettings()
@@ -422,6 +487,8 @@ void Settings::LoadSettings()
 	m_config->Read(m_UsingCustomOutlineColorKey, &m_Setting_OutlineColor);
 	m_config->Read(m_UsingCustomShapeColorKey, &m_Setting_ShapeColor);
 	m_config->Read(m_UsingCustomBackgroundColorKey, &m_Setting_BackgroundColor);
+	m_config->Read(m_HotkeyModifierKey, &m_HotkeyModifier);
+	m_config->Read(m_HotkeyLetterKey, &m_HotkeyLetter);
 }
 
 void Settings::SaveSettings()
@@ -435,6 +502,8 @@ void Settings::SaveSettings()
 	m_config->Write(m_UsingCustomOutlineColorKey, m_Setting_OutlineColor);
 	m_config->Write(m_UsingCustomShapeColorKey, m_Setting_ShapeColor);
 	m_config->Write(m_UsingCustomBackgroundColorKey, m_Setting_BackgroundColor);
+	m_config->Write(m_HotkeyModifierKey, m_HotkeyModifier);
+	m_config->Write(m_HotkeyLetterKey, m_HotkeyLetter);
 }
 
 void Settings::UpdateGUISettings() // Incoming spaghetti code. This is run when the user opens the window initially
@@ -526,6 +595,7 @@ void Settings::SetupToolbars()
 	m_Toolbar = CreateToolBar();
 	m_General_Toolbutton = m_Toolbar->AddCheckTool(ID_TOOLBAR_GENERAL_SETTINGS, wxT("General Settings"), wxBitmap(wxT("Gear.png"), wxBITMAP_TYPE_PNG), wxNullBitmap, wxT("Show General Settings"));
 	m_Color_Toolbutton = m_Toolbar->AddCheckTool(ID_TOOLBAR_COLOR_SETTINGS, wxT("Color Settings"), wxBitmap(wxT("RGB.png"), wxBITMAP_TYPE_PNG), wxNullBitmap, wxT("Show Color Settings"));
+	m_Hotkey_Toolbutton = m_Toolbar->AddCheckTool(ID_TOOLBAR_HOTKEY_SETTINGS, wxT("Hotkey Settings"), wxBitmap(wxT("Hotkey.png"), wxBITMAP_TYPE_PNG), wxNullBitmap, wxT("Show Hotkey Settings"));
 	m_Toolbar->EnableTool(ID_TOOLBAR_GENERAL_SETTINGS, false);
 	m_Toolbar->Realize();
 }
@@ -552,6 +622,15 @@ void Settings::LoadGeneralSettingsLayout()
 	m_ColorBackgroundCheckBox->Hide();
 	m_PickBackgroundColorButton->Hide();
 	m_PickTransparencyButton->Hide();
+
+	m_HotKeyCtrl->Hide();
+	//m_HotkeyShortcutLabel->Hide();
+	m_HotkeyList->Hide();
+	m_HotkeyModiferList->Hide();
+	m_HotkeyLabel->Hide();
+	m_HotkeyLetterLabel->Hide();
+	m_HotKeyModifierLabel->Hide();
+	m_HotkeyNote->Hide();
 }
 
 void Settings::LoadColorSettingsLayout()
@@ -565,6 +644,15 @@ void Settings::LoadColorSettingsLayout()
 	m_MinimizeNotify->Hide();
 	m_DirPathWarning->Hide();
 
+	m_HotkeyList->Hide();
+	m_HotkeyModiferList->Hide();
+	m_HotKeyCtrl->Hide();
+	//m_HotkeyShortcutLabel->Hide();
+	m_HotkeyLabel->Hide();
+	m_HotkeyLetterLabel->Hide();
+	m_HotKeyModifierLabel->Hide();
+	m_HotkeyNote->Hide();
+
 	m_ColorOutlineCheckBox->Show();
 	m_PickOutlineColorButton->Show();
 	m_ColorShapeCheckBox->Show();
@@ -573,6 +661,34 @@ void Settings::LoadColorSettingsLayout()
 	m_PickBackgroundColorButton->Show();
 	m_PickTransparencyButton->Show();
 
+}
+
+void Settings::LoadHotkeySettingsLayout()
+{
+	m_Clipboard->Hide();
+	m_SaveFile->Hide();
+	m_SaveFileLocation->Hide();
+	m_PlaySound->Hide();
+	m_PlaySoundButton->Hide();
+	m_PlaySoundPath->Hide();
+	m_MinimizeNotify->Hide();
+	m_DirPathWarning->Hide();
+	m_ColorOutlineCheckBox->Hide();
+	m_PickOutlineColorButton->Hide();
+	m_ColorShapeCheckBox->Hide();
+	m_PickShapeColorButton->Hide();
+	m_ColorBackgroundCheckBox->Hide();
+	m_PickBackgroundColorButton->Hide();
+	m_PickTransparencyButton->Hide();
+
+	m_HotKeyCtrl->Show();
+	//m_HotkeyShortcutLabel->Show();
+	m_HotkeyList->Show();
+	m_HotkeyModiferList->Show();
+	m_HotkeyLabel->Show();
+	m_HotkeyLetterLabel->Show();
+	m_HotKeyModifierLabel->Show();
+	m_HotkeyNote->Show();
 }
 
 void Settings::AllocateControls()
@@ -604,9 +720,36 @@ void Settings::AllocateCheckBoxes()
 	m_MinimizeNotify = new wxCheckBox(m_Panel, ID_CHECKBOX_MINIMIZE_NOTIFY, wxT("Notify Me When Program Is Minimized"), wxPoint(10, 190), wxSize(225, 20));
 }
 
+
 void Settings::AllocateTextControls()
 {
 	m_DirPathWarning = new wxTextCtrl(m_Panel, wxID_ANY, wxEmptyString, wxPoint(115, 65), wxSize(200, 35), wxTE_RICH | wxTE_READONLY | wxTE_MULTILINE);
+}
+
+void Settings::AllocateHotkeyControls()
+{
+	wxArrayString m_HotkeyModifiers(2);
+	wxArrayString m_HotKeys(25);
+
+	m_HotkeyModifiers.Insert(wxT("ALT"), 0);
+	m_HotkeyModifiers.Insert(wxT("CTRL"), 1);
+	m_HotkeyModifiers.Insert(wxT("SHIFT"), 2);
+
+	for (char a = 'A', i = 0; a <= 'Z'; a++, i++)
+	{
+		m_HotKeys.Insert(a, i);
+	}
+
+	m_HotkeyModiferList = new wxComboBox(m_Panel, ID_COMBOBOX_PICK_HOTKEY_MODIFIER, wxT("Choose Modifier Key"), wxPoint(105, 30), wxSize(60, 100), m_HotkeyModifiers, wxCB_READONLY);
+	m_HotkeyList = new wxComboBox(m_Panel, ID_COMBOBOX_PICK_HOTKEY, wxT("Choose Key"), wxPoint(105, 60), wxSize(60, 100), m_HotKeys, wxCB_READONLY);
+	m_HotKeyCtrl = new wxTextCtrl(m_Panel, wxID_ANY, (m_HotkeyModifier + " + " + m_HotkeyLetter), wxPoint(100, 120), wxSize(65, 20), wxTE_READONLY | wxTE_LEFT);
+	//m_HotkeyShortcutLabel = new wxStaticText(m_Panel, wxID_ANY, (m_HotkeyModifier + " + " + m_HotkeyLetter), wxPoint(100, 120), wxSize(150, 20));
+	m_HotkeyLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Current Hotkey:"), wxPoint(95, 100), wxSize(125, 20));
+	m_HotkeyLetterLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Choose Letter"), wxPoint(10, 60), wxSize(75, 20));
+	m_HotKeyModifierLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Choose Modifier"), wxPoint(10, 30), wxSize(90, 20));
+	m_HotkeyNote = new wxStaticText(m_Panel, wxID_ANY, wxT("Note: Key changes will be applied next time program is restarted"), wxPoint(5, 160), wxSize(280, 60));
+
+
 }
 
 void Settings::UpdateTxtCtrlGreen()

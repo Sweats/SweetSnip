@@ -40,9 +40,11 @@ void TransparencyWindow::OnSliderMoved(wxCommandEvent & event)
 
 void TransparencyWindow::OnSaveChanges(wxCommandEvent & event)
 {
+	const wxString TransparencyKey = wxT("Shape Transparency:");
 	m_Changed = false;
 	m_SaveChangesButton->Disable();
 	m_SaveChangesButton->SetLabelText(wxT("Saved Changes"));
+	m_Config->Write(TransparencyKey, m_Transparency);
 }
 
 void TransparencyWindow::OnClose(wxCloseEvent & event)
@@ -62,7 +64,7 @@ void TransparencyWindow::OnClose(wxCloseEvent & event)
 			m_Changed = false;
 			// Save Setting
 			m_Config->Write(TransparencyKey, m_Transparency);
-			Destroy();
+			this->Destroy();
 		}
 
 		else
@@ -71,8 +73,9 @@ void TransparencyWindow::OnClose(wxCloseEvent & event)
 		}
 	}
 
-	Destroy();
+	this->Destroy();
 	m_Window->Enable();
+	m_Window->Show();
 }
 
 void TransparencyWindow::LoadSettings()

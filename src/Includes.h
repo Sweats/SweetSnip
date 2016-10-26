@@ -52,11 +52,19 @@
 #define SHAPE_COLOR 1
 #define BACKGROUND_COLOR 2
 
+#define MODIFIER_ALT 0
+#define MODIFIER_CTRL 1
+#define MODIFIER_SHIFT 2
+
+#define DESKTOP_FRAME 1337
+
 #include <wx\wx.h>
 #include <wx\sound.h>
 #include <wx\fileconf.h>
 #include <wx\dcgraph.h>
 #include <wx\dcmemory.h>
 #include <wx\dcbuffer.h>
-#include <string>
+#include <wx\clipbrd.h>
+#include <wx\window.h>
+#include <wx\notifmsg.h>
 
