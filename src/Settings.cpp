@@ -709,7 +709,7 @@ void Settings::AllocateButtons()
 	m_PickOutlineColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_OUTLINE_COLOR, wxT("Pick Custom Outline Color"), wxPoint(10, 50), wxSize(150, 25));
 	m_PickShapeColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_SHAPE_COLOR, wxT("Pick Custom Shape Color"), wxPoint(10, 100), wxSize(150, 25));
 	m_PickBackgroundColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_BACKGROUND_COLOR, wxT("Pick Custom Background Color"), wxPoint(10, 150), wxSize(200, 25));
-	m_PickTransparencyButton = new wxButton(m_Panel, ID_BUTTON_PICK_TRANSPARENCY, wxT("Pick Shape Transparency Amount"), wxPoint(10, 170), wxSize(200, 25));
+	m_PickTransparencyButton = new wxButton(m_Panel, ID_BUTTON_PICK_TRANSPARENCY, wxT("Pick Shape Transparency Amount"), wxPoint(10, 180), wxSize(200, 25));
 }
 
 void Settings::AllocateCheckBoxes()

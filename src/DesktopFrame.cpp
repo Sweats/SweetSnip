@@ -68,10 +68,9 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 		wxTheClipboard->UsePrimarySelection(true);
 		#endif
 
-		wxSize ScreenRes = screendc.GetSize();
-		wxBitmap ScreenBitmap(ScreenRes.GetWidth(), ScreenRes.GetHeight());
+		wxBitmap ScreenBitmap(m_Size.GetWidth(), m_Size.GetHeight());
 		memdc.SelectObject(ScreenBitmap);
-		memdc.Blit(0, 0, ScreenRes.GetWidth(), ScreenRes.GetHeight(), &screendc, 0, 0);
+		memdc.Blit(0, 0, m_Size.GetWidth(), m_Size.GetHeight(), &screendc, 0, 0);
 		memdc.SelectObject(wxNullBitmap);
 		wxBitmap Snippet = ScreenBitmap.GetSubBitmap(CroppedRegion);
 
@@ -85,22 +84,25 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 
 	if (m_Setting_SaveImages)
 	{
-		wxImage::AddHandler(new wxJPEGHandler);
-		wxMemoryDC memdc(&dc);
+		if (!m_DirectoryFilePath.empty())
+		{
+			wxImage::AddHandler(new wxJPEGHandler);
+			wxMemoryDC memdc(&dc);
 
-		wxSize ScreenRes = screendc.GetSize();
+			//wxScreenDC screendc;
+			//wxBitmap snippet(CroppedRegion.GetWidth(), CroppedRegion.GetHeight());
+			wxBitmap ScreenBitmap(m_Size.GetWidth(), m_Size.GetHeight());
+			memdc.SelectObject(ScreenBitmap);
+			memdc.Blit(0, 0, m_Size.GetWidth(), m_Size.GetHeight(), &screendc, 0, 0); // works but slow
+			memdc.SelectObject(wxNullBitmap);
+			//memdc.Blit(m_End, CroppedRegion.GetSize(), &screendc, m_Start);
+			//memdc.DrawBitmap(snippet, ScreenRes.x, ScreenRes.y);
 
-		//wxScreenDC screendc;
-		//wxBitmap snippet(CroppedRegion.GetWidth(), CroppedRegion.GetHeight());
-		wxBitmap ScreenBitmap(ScreenRes.GetWidth(), ScreenRes.GetHeight());
-		memdc.SelectObject(ScreenBitmap);
-		memdc.Blit(0, 0, ScreenRes.GetX(), ScreenRes.GetY(), &screendc, 0, 0); // works but slow
-		memdc.SelectObject(wxNullBitmap);
-		//memdc.Blit(m_End, CroppedRegion.GetSize(), &screendc, m_Start);
-		//memdc.DrawBitmap(snippet, ScreenRes.x, ScreenRes.y);
-
-		wxBitmap CroppedImage = ScreenBitmap.GetSubBitmap(CroppedRegion);
-		CroppedImage.SaveFile(wxT("test.jpg"), wxBITMAP_TYPE_JPEG);
+			wxMilliClock_t TimeStamp = wxGetLocalTime();
+			wxString FileName = m_DirectoryFilePath + "\\IMG_" + wxString::Format(wxT("%lli"), TimeStamp) + ".jpg";
+			wxBitmap CroppedImage = ScreenBitmap.GetSubBitmap(CroppedRegion);
+			CroppedImage.SaveFile(FileName, wxBITMAP_TYPE_JPEG);
+		}
 	}
 
 	this->Destroy();
