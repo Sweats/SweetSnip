@@ -44,8 +44,9 @@ END_EVENT_TABLE()
 
 Settings::Settings(wxWindow * window, const wxString & Title, const wxPoint & Point, const wxSize & Size): wxFrame(window, wxID_ANY, Title, Point, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_Window(window)
 {
-
 	m_Panel = new wxPanel(this);
+
+	this->SetIcon(wxIcon(wxT("Settings.png"), wxBITMAP_TYPE_PNG));
 
 	SetupToolbars();
 	m_Window->Disable();

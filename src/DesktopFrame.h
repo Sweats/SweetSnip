@@ -9,7 +9,7 @@
 class DesktopFrame: public wxFrame
 {
 public:
-	DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID);
+	DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID, bool IsMinimzed);
 	~DesktopFrame();
 
 private:
@@ -46,6 +46,8 @@ private:
 	bool m_Setting_OutlineColor;
 	bool m_Setting_ShapeColor;
 	bool m_Setting_BackgroundColor;
+
+	bool m_Minimized;
 
 	wxString m_SoundPath;
 	wxString m_DirectoryFilePath;

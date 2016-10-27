@@ -9,11 +9,17 @@ EVT_CLOSE(DesktopFrame::OnClose)
 END_EVENT_TABLE()
 
 
-DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID) : wxFrame(Window, WindowID, wxEmptyString, wxDefaultPosition, Size, wxSTAY_ON_TOP), m_Size(Size), m_Window(Window)
+DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID, bool IsMinimized) : wxFrame(Window, WindowID, wxEmptyString, wxDefaultPosition, Size, wxSTAY_ON_TOP), m_Size(Size), m_Window(Window)
 {
+	if (Window != NULL)
+	{
+		Window->Hide();
+	}
+
+	m_Minimized = IsMinimized;
+
 	m_ColorsLoaded = false;
 	LoadSettings();
-	Window->Hide();
 	this->SetBackgroundColour(wxColour(m_Red_Background, m_Green_Background, m_Blue_Background));
 	this->SetTransparent(m_Transparency);
 	this->SetFocus(); // doesn't always work if we're entering this window from hotkey
@@ -96,9 +102,16 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 		wxBitmap CroppedImage = ScreenBitmap.GetSubBitmap(CroppedRegion);
 		CroppedImage.SaveFile(wxT("test.jpg"), wxBITMAP_TYPE_JPEG);
 	}
-	
+
 	this->Destroy();
-	m_Window->Show();
+
+	if (!m_Minimized)
+	{
+		if (m_Window != NULL)
+		{
+			m_Window->Show();
+		}
+	}
 }
 
 void DesktopFrame::OnMouseMove(wxMouseEvent & event)
@@ -138,7 +151,14 @@ void DesktopFrame::OnMouseMove(wxMouseEvent & event)
 void DesktopFrame::OnClose(wxCloseEvent & event) // incase if the user closes the window by hitting alt tab then close
 {
 	this->Destroy();
-	m_Window->Show();
+
+	if (!m_Minimized)
+	{
+		if (m_Window != NULL)
+		{
+			m_Window->Show();
+		}
+	}
 }
 
 void DesktopFrame::LoadColors(wxBufferedDC & dc)
@@ -195,7 +215,14 @@ void DesktopFrame::OnESCKeyPressed(wxKeyEvent & event)
 	if (event.GetKeyCode() == wxKeyCode::WXK_ESCAPE)
 	{
 		this->Destroy();
-		m_Window->Show();
+
+		if (!m_Minimized)
+		{
+			if (m_Window != NULL)
+			{
+				m_Window->Show();
+			}
+		}
 	}
 }
 

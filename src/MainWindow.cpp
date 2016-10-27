@@ -14,12 +14,15 @@ MainWindow::MainWindow(const wxString & Title, const wxSize & Size): wxFrame(NUL
 	m_Panel = new wxPanel(this);
 	LoadToolbarIcons();
 	LoadSettings();
+	m_Taskbar = new Taskbar(this, (m_HotkeyModifier + " + " + m_HotkeyLetter));
+	this->SetIcon(wxIcon(wxT("SweetSnipIcon.png"), wxBITMAP_TYPE_PNG));
 }
 
 
 MainWindow::~MainWindow()
 {
 	this->UnregisterHotKey(ID_HOTKEY);
+	delete m_Taskbar;
 }
 
 void MainWindow::OnSettings(wxCommandEvent & event)
@@ -37,7 +40,7 @@ void MainWindow::OnNewSnip(wxCommandEvent & event)
 {
 	wxSize ScreenResolution = GetScreenResolution();
 
-	DesktopFrame * SnippetWindow = new DesktopFrame(this, ScreenResolution, DESKTOP_FRAME);
+	DesktopFrame * SnippetWindow = new DesktopFrame(this, ScreenResolution, DESKTOP_FRAME, false);
 	SnippetWindow->Show();
 }
 
@@ -56,6 +59,7 @@ void MainWindow::OnMinimize(wxIconizeEvent & event)
 {
 	if (event.IsIconized())
 	{
+		this->Hide();
 		const wxString MinimizeNotifyKey = wxT("Notify user when program is minimized");
 		wxFileConfig Config(wxEmptyString, wxEmptyString, wxT("Settings.ini"), wxT("Settings.ini"), wxCONFIG_USE_RELATIVE_PATH);
 		Config.Read(MinimizeNotifyKey, &m_Setting_Minimize);
@@ -75,8 +79,7 @@ void MainWindow::OnHotkeyPressed(wxKeyEvent & event)
 		return;
 	}
 
-	wxSize ScreenResolution = GetScreenResolution();
-	DesktopFrame * SnippetWindow = new DesktopFrame(this, ScreenResolution, DESKTOP_FRAME);
+	DesktopFrame * SnippetWindow = new DesktopFrame(this, GetScreenResolution(), DESKTOP_FRAME, true);
 	SnippetWindow->Show();
 }
 

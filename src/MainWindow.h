@@ -3,6 +3,7 @@
 #include "Includes.h"
 #include "Settings.h"
 #include "DesktopFrame.h"
+#include "Taskbar.h"
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -14,6 +15,7 @@ public:
 	MainWindow(const wxString & Title, const wxSize & Size);
 	~MainWindow();
 
+
 private:
 	wxPanel * m_Panel;
 	wxButton * m_Button;
@@ -22,6 +24,8 @@ private:
 
 	wxMenuBar * m_MenuBar;
 	wxMenu * m_menu;
+
+	Taskbar * m_Taskbar;
 
 	int m_option; // for the defines
 
@@ -35,12 +39,12 @@ private:
 	void LoadToolbarIcons();
 	void LoadSettings();
 	void SetHotKey();
-	wxSize GetScreenResolution();
 
 
 	wxString m_HotkeyLetter;
 	wxString m_HotkeyModifier;
 	bool m_Setting_Minimize;
+	wxSize GetScreenResolution();
 
 	DECLARE_EVENT_TABLE()
 };

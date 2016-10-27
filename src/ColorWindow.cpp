@@ -13,6 +13,7 @@ ColorWindow::ColorWindow(wxWindow * Window, const wxString & Title, const wxSize
 {
 	m_Changed = false;
 	m_Option = Option;
+	this->SetIcon(wxIcon(wxT("RGB.png"), wxBITMAP_TYPE_PNG));
 
 	m_Window->Disable();
 

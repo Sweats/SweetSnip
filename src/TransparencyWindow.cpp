@@ -10,6 +10,7 @@ TransparencyWindow::TransparencyWindow(wxWindow * parent, const wxString & Title
 {
 	m_Changed = false;
 	LoadSettings();
+	this->SetIcon(wxIcon(wxT("RGB.png"), wxBITMAP_TYPE_PNG));
 
 	m_Panel = new wxPanel(this);
 	m_Slider = new wxSlider(m_Panel, ID_SLIDER, 0, 0, 255, wxPoint(10, 20), wxSize(255, 20), wxSL_HORIZONTAL | wxSL_LABELS | wxSL_INVERSE);
