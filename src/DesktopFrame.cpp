@@ -115,6 +115,7 @@ void DesktopFrame::OnMouseMove(wxMouseEvent & event)
 		wxRect RectToDraw(MousePos, m_Start);
 		dc.Clear();
 		gc->DrawRectangle(RectToDraw.GetX(), RectToDraw.GetY(), RectToDraw.GetWidth(), RectToDraw.GetHeight());
+		delete gc;
 	}
 }
 
