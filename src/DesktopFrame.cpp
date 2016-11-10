@@ -9,7 +9,7 @@ EVT_CLOSE(DesktopFrame::OnClose)
 END_EVENT_TABLE()
 
 
-DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID, bool IsMinimized) : wxFrame(Window, WindowID, wxEmptyString, wxDefaultPosition, Size, wxSTAY_ON_TOP), m_Size(Size), m_Window(Window)
+DesktopFrame::DesktopFrame(wxWindow * Window, const wxSize & Size, int WindowID, bool IsMinimized) : wxFrame(Window, WindowID, wxEmptyString, wxDefaultPosition, Size, wxSTAY_ON_TOP | wxBORDER_NONE), m_Size(Size), m_Window(Window)
 {
 	if (Window != NULL)
 	{
@@ -51,6 +51,11 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 	this->Hide();
 	m_End = event.GetPosition();
 	wxRect CroppedRegion(m_End, m_Start);
+	wxBitmap ScreenBitmap(m_Size.GetWidth(), m_Size.GetHeight());
+	memdc.SelectObject(ScreenBitmap);
+	memdc.Blit(0, 0, m_Size.GetWidth(), m_Size.GetHeight(), &screendc, 0, 0);
+	memdc.SelectObject(wxNullBitmap);
+	wxBitmap Snippet = ScreenBitmap.GetSubBitmap(CroppedRegion);
 
 	if (m_Setting_PlaySound)
 	{
@@ -68,12 +73,6 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 		wxTheClipboard->UsePrimarySelection(true);
 		#endif
 
-		wxBitmap ScreenBitmap(m_Size.GetWidth(), m_Size.GetHeight());
-		memdc.SelectObject(ScreenBitmap);
-		memdc.Blit(0, 0, m_Size.GetWidth(), m_Size.GetHeight(), &screendc, 0, 0);
-		memdc.SelectObject(wxNullBitmap);
-		wxBitmap Snippet = ScreenBitmap.GetSubBitmap(CroppedRegion);
-
 		if (wxTheClipboard->Open())
 		{
 			wxTheClipboard->Clear();
@@ -87,21 +86,9 @@ void DesktopFrame::OnMouseUp(wxMouseEvent & event)
 		if (!m_DirectoryFilePath.empty())
 		{
 			wxImage::AddHandler(new wxJPEGHandler);
-			wxMemoryDC memdc(&dc);
-
-			//wxScreenDC screendc;
-			//wxBitmap snippet(CroppedRegion.GetWidth(), CroppedRegion.GetHeight());
-			wxBitmap ScreenBitmap(m_Size.GetWidth(), m_Size.GetHeight());
-			memdc.SelectObject(ScreenBitmap);
-			memdc.Blit(0, 0, m_Size.GetWidth(), m_Size.GetHeight(), &screendc, 0, 0); // works but slow
-			memdc.SelectObject(wxNullBitmap);
-			//memdc.Blit(m_End, CroppedRegion.GetSize(), &screendc, m_Start);
-			//memdc.DrawBitmap(snippet, ScreenRes.x, ScreenRes.y);
-
 			wxMilliClock_t TimeStamp = wxGetLocalTime();
 			wxString FileName = m_DirectoryFilePath + "\\IMG_" + wxString::Format(wxT("%lli"), TimeStamp) + ".jpg";
-			wxBitmap CroppedImage = ScreenBitmap.GetSubBitmap(CroppedRegion);
-			CroppedImage.SaveFile(FileName, wxBITMAP_TYPE_JPEG);
+			Snippet.SaveFile(FileName, wxBITMAP_TYPE_JPEG);
 		}
 	}
 
@@ -120,33 +107,14 @@ void DesktopFrame::OnMouseMove(wxMouseEvent & event)
 {
 	if (m_IsMousePressed)
 	{
-		// TO DO. Improve this.
 		wxWindowDC windc(this);
-		//wxGraphicsContext * gc = wxGraphicsContext::Create(windc);
 		wxBufferedDC dc(&windc);
-
-		LoadColors(dc);
-		//LoadColors(gc);
-
+		wxGraphicsContext * gc = wxGraphicsContext::Create(dc);
+		LoadColors(gc);
 		wxPoint MousePos = event.GetLogicalPosition(dc);
-
 		wxRect RectToDraw(MousePos, m_Start);
-
 		dc.Clear();
-		dc.DrawRectangle(RectToDraw);
-
-		/*if (m_Start.x > MousePos.x)
-		{
-			gc->DrawRectangle(RectToDraw.x, RectToDraw.y, m_Start.x - MousePos.x, m_Start.y - MousePos.y);
-		}
-
-		else if (m_Start.x < MousePos.x)
-		{
-			gc->DrawRectangle(RectToDraw.x, RectToDraw.y, m_Start.x + MousePos.x, m_Start.y - MousePos.y);
-		}
-		*/
-
-		//delete gc;
+		gc->DrawRectangle(RectToDraw.GetX(), RectToDraw.GetY(), RectToDraw.GetWidth(), RectToDraw.GetHeight());
 	}
 }
 
@@ -163,53 +131,10 @@ void DesktopFrame::OnClose(wxCloseEvent & event) // incase if the user closes th
 	}
 }
 
-void DesktopFrame::LoadColors(wxBufferedDC & dc)
-{
-	if (m_Setting_OutlineColor)
-	{
-		dc.SetPen(wxPen(wxColour(m_Red_Outline, m_Green_Outline, m_Blue_Outline)));
-	}
-
-	else
-	{
-		dc.SetPen(wxPen(*wxGREY_PEN));
-	}
-
-	if (m_Setting_ShapeColor)
-	{
-		dc.SetBrush(wxBrush(wxColour(m_Red_Shape, m_Green_Shape, m_Blue_Shape, m_Transparency)));//, wxBRUSHSTYLE_TRANSPARENT);
-	}
-
-	else
-	{
-		dc.SetBrush(wxBrush(*wxWHITE_BRUSH));
-	}
-
-	m_ColorsLoaded = true;
-}
-
-// For testing purposes. Delete this at some point
 void DesktopFrame::LoadColors(wxGraphicsContext * gc)
 {
-	if (m_Setting_OutlineColor)
-	{
-		gc->SetPen(wxPen(wxColour(m_Red_Outline, m_Green_Outline, m_Blue_Outline)));
-	}
-
-	else
-	{
-		gc->SetPen(wxPen(*wxBLACK_PEN));
-	}
-
-	if (m_Setting_ShapeColor)
-	{
-		gc->SetBrush(wxBrush(wxColour(m_Red_Shape, m_Green_Shape, m_Blue_Shape, m_Transparency)));
-	}
-
-	else
-	{
-		gc->SetBrush(wxBrush(wxColour(255, 255, 255, 100))); // White brush.
-	}
+	gc->SetPen(wxPen(wxColour(m_Red_Outline, m_Green_Outline, m_Blue_Outline)));
+	gc->SetBrush(wxBrush(wxColour(m_Red_Shape, m_Green_Shape, m_Blue_Shape, m_ShapeTransparency)));
 }
 
 void DesktopFrame::OnESCKeyPressed(wxKeyEvent & event)
@@ -290,6 +215,17 @@ void DesktopFrame::LoadSettings()
 		m_Setting_OutlineColor = false;
 		m_Setting_ShapeColor = false;
 		m_Setting_BackgroundColor = false;
+		m_Red_Background = 128;
+		m_Green_Background = 128;
+		m_Blue_Background = 128;
+		m_ShapeTransparency = 125;
+		m_Transparency = 100;
+		m_Red_Shape = 255;
+		m_Green_Shape = 255;
+		m_Blue_Shape = 255;
+		m_Red_Outline = 255;
+		m_Green_Outline = 0;
+		m_Blue_Outline = 0;
 	}
 
 	else
@@ -317,8 +253,8 @@ void DesktopFrame::LoadSettings()
 		const wxString m_GreenKey_Outline = wxT("Shape Outline Color: Green");
 		const wxString m_BlueKey_Outline = wxT("Shape Outline Color: Blue");
 
-		const wxString TransparencyKey = wxT("Shape Transparency:");
-
+		const wxString TransparencyKey = wxT("Background Transparency");
+		const wxString ShapeTransparencyKey = wxT("Shape Transparency");
 
 		wxFileConfig config(wxEmptyString, wxEmptyString, wxT("Settings.ini"), wxT("Settings.ini"), wxCONFIG_USE_RELATIVE_PATH);
 		config.Read(m_ClipboardKey, &m_Setting_CopyToClipboard);
@@ -327,7 +263,7 @@ void DesktopFrame::LoadSettings()
 		config.Read(m_PlaySoundKey, &m_Setting_PlaySound);
 		config.Read(m_SoundFileKey, &m_SoundPath);
 		config.Read(TransparencyKey, &m_Transparency);
-		//config.Read(m_MinimizeNotifyKey, &m_setting_m)
+		config.Read(ShapeTransparencyKey, &m_ShapeTransparency);
 		config.Read(m_RedKey_Outline, &m_Red_Outline);
 		config.Read(m_GreenKey_Outline, &m_Green_Outline);
 		config.Read(m_BlueKey_Outline, &m_Blue_Outline);
@@ -340,5 +276,28 @@ void DesktopFrame::LoadSettings()
 		config.Read(m_UsingCustomOutlineColorKey, &m_Setting_OutlineColor);
 		config.Read(m_UsingCustomShapeColorKey, &m_Setting_ShapeColor);
 		config.Read(m_UsingCustomBackgroundColorKey, &m_Setting_BackgroundColor);
+
+		if (!m_Setting_BackgroundColor)
+		{
+			m_Red_Background = 128;
+			m_Green_Background = 128;
+			m_Blue_Background = 128;
+		}
+
+		if (!m_Setting_ShapeColor)
+		{
+			m_Red_Shape = 255;
+			m_Green_Shape = 255;
+			m_Blue_Shape = 255;
+		}
+
+		if (!m_Setting_OutlineColor)
+		{
+			m_Red_Outline = 255;
+			m_Green_Outline = 0;
+			m_Blue_Outline = 0;
+		}
+
+		CheckValues();
 	}
 }

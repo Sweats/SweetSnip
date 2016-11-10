@@ -27,7 +27,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::OnSettings(wxCommandEvent & event)
 {
-	Settings * settings = new Settings(this, wxT("SweetSnip Settings"), wxDefaultPosition, wxSize(300, 350));
+	Settings * settings = new Settings(this, wxT("SweetSnip Settings"), wxDefaultPosition, wxSize(300, 370));
 	settings->Show(true);
 }
 
@@ -37,10 +37,8 @@ void MainWindow::OnAbout(wxCommandEvent & event)
 }
 
 void MainWindow::OnNewSnip(wxCommandEvent & event)
-{
-	wxSize ScreenResolution = GetScreenResolution();
-
-	DesktopFrame * SnippetWindow = new DesktopFrame(this, ScreenResolution, DESKTOP_FRAME, false);
+{ 
+	DesktopFrame * SnippetWindow = new DesktopFrame(this, GetScreenResolution(), DESKTOP_FRAME, false);
 	SnippetWindow->Show();
 }
 

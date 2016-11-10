@@ -6,8 +6,9 @@ EVT_BUTTON(ID_SAVE, TransparencyWindow::OnSaveChanges)
 EVT_CLOSE(TransparencyWindow::OnClose)
 END_EVENT_TABLE()
 
-TransparencyWindow::TransparencyWindow(wxWindow * parent, const wxString & Title, const wxSize & Size, wxFileConfig * config): wxFrame(parent, wxID_ANY, Title, wxDefaultPosition, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_Config(config), m_Window(parent)
+TransparencyWindow::TransparencyWindow(wxWindow * parent, const wxString & Title, const wxSize & Size, wxFileConfig * config, int Option): wxFrame(parent, wxID_ANY, Title, wxDefaultPosition, Size, wxSYSTEM_MENU | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN), m_Config(config), m_Window(parent)
 {
+	m_Option = Option;
 	m_Changed = false;
 	LoadSettings();
 	this->SetIcon(wxIcon(wxT("RGB.png"), wxBITMAP_TYPE_PNG));
@@ -41,11 +42,25 @@ void TransparencyWindow::OnSliderMoved(wxCommandEvent & event)
 
 void TransparencyWindow::OnSaveChanges(wxCommandEvent & event)
 {
-	const wxString TransparencyKey = wxT("Shape Transparency:");
+	const wxString TransparencyKey = wxT("Background Transparency");
+	const wxString ShapeTransparencyKey = wxT("Shape Transparency");
 	m_Changed = false;
 	m_SaveChangesButton->Disable();
 	m_SaveChangesButton->SetLabelText(wxT("Saved Changes"));
-	m_Config->Write(TransparencyKey, m_Transparency);
+
+	switch (m_Option)
+	{
+		case SHAPE_TRANSPARENCY:
+			m_Config->Write(ShapeTransparencyKey, m_Transparency);
+			break;
+		
+		case BACKGROUND_TRANSPARENCY:
+			m_Config->Write(TransparencyKey, m_Transparency);
+			break;
+
+		default:
+			break;
+	}
 }
 
 void TransparencyWindow::OnClose(wxCloseEvent & event)
@@ -61,10 +76,24 @@ void TransparencyWindow::OnClose(wxCloseEvent & event)
 
 		else if (Response == wxYES)
 		{
-			const wxString TransparencyKey = wxT("Shape Transparency:");
+			const wxString TransparencyKey = wxT("Background Transparency");
+			const wxString ShapeTransparencyKey = wxT("Shape Transparency");
+
+			switch (m_Option)
+			{
+				case SHAPE_TRANSPARENCY:
+					m_Config->Write(ShapeTransparencyKey, m_Transparency);
+					break;
+
+				case BACKGROUND_TRANSPARENCY:
+					m_Config->Write(TransparencyKey, m_Transparency);
+					break;
+
+				default:
+					break;
+			}
+			
 			m_Changed = false;
-			// Save Setting
-			m_Config->Write(TransparencyKey, m_Transparency);
 			this->Destroy();
 		}
 
@@ -81,8 +110,23 @@ void TransparencyWindow::OnClose(wxCloseEvent & event)
 
 void TransparencyWindow::LoadSettings()
 {
-	const wxString TransparencyKey = wxT("Shape Transparency:");
-	m_Config->Read(TransparencyKey, &m_Transparency);
+	const wxString TransparencyKey = wxT("Background Transparency");
+	const wxString ShapeTransparencyKey = wxT("Shape Transparency");
+
+	switch (m_Option)
+	{
+		case BACKGROUND_TRANSPARENCY:
+			m_Config->Read(TransparencyKey, &m_Transparency);
+			break;
+
+		case SHAPE_TRANSPARENCY:
+			m_Config->Read(ShapeTransparencyKey, &m_Transparency);
+			break;
+
+		default:
+			break;
+		}
+
 	CheckTransparency();
 }
 

@@ -18,7 +18,6 @@ private:
 	void OnMouseMove(wxMouseEvent & event);
 	bool m_IsMousePressed;
 	bool m_ColorsLoaded;
-	void LoadColors(wxBufferedDC & dc);
 	void LoadColors(wxGraphicsContext * gc);
 	void OnESCKeyPressed(wxKeyEvent & event);
 	void OnClose(wxCloseEvent & event);
@@ -38,6 +37,7 @@ private:
 	int m_Blue_Background;
 
 	int m_Transparency;
+	int m_ShapeTransparency;
 
 	bool m_Setting_CopyToClipboard;
 	bool m_Setting_SaveImages;
@@ -53,7 +53,6 @@ private:
 	wxString m_DirectoryFilePath;
 
 	wxWindow * m_Window;
-
 
 	wxPoint m_Start;
 	wxPoint m_End;

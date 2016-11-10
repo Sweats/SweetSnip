@@ -8,7 +8,7 @@
 class TransparencyWindow: public wxFrame
 {
 public:
-	TransparencyWindow(wxWindow * parent, const wxString & Title, const wxSize & Size, wxFileConfig * config);
+	TransparencyWindow(wxWindow * parent, const wxString & Title, const wxSize & Size, wxFileConfig * config, int Option);
 	~TransparencyWindow();
 
 private:
@@ -17,6 +17,8 @@ private:
 	wxSlider * m_Slider;
 	wxButton * m_SaveChangesButton;
 	int m_Transparency;
+	int m_ShapeTransparency;
+	int m_Option;
 	wxWindow * m_Window;
 	wxFileConfig * m_Config;
 	void OnSliderMoved(wxCommandEvent & event);

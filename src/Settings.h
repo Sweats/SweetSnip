@@ -26,20 +26,18 @@ private:
 	wxButton * m_PlaySoundButton; // Test Sound
 	wxCheckBox * m_MinimizeNotify; // Notify on Minimize
 
-
 	// Color controls
 	wxCheckBox * m_ColorOutlineCheckBox; // "Use custom shape outline color"
 	wxCheckBox * m_ColorShapeCheckBox; // "Use custom shape color"
 	wxCheckBox * m_ColorBackgroundCheckBox; // "Use custom background color"
-
 
 	wxButton * m_PickOutlineColorButton; // "Pick Outline Color" Button
 	wxButton * m_PickShapeColorButton; // "Pick Shape Color" Button
 	wxButton * m_PickBackgroundColorButton; // "Pick Background Color" Button.
 
 	wxButton * m_PickTransparencyButton;
+	wxButton * m_PickShapeTransparencyButton;
 	
-
 	// Hotkey controls
 	wxComboBox * m_HotkeyModiferList;
 	wxComboBox * m_HotkeyList;
@@ -48,8 +46,6 @@ private:
 	wxStaticText * m_HotkeyLetterLabel;
 	wxStaticText * m_HotKeyModifierLabel;
 	wxStaticText * m_HotkeyNote;
-	//wxStaticText * m_HotkeyShortcutLabel;
-	//wxButton * m_SetHotKeyButton;
 
 	// Misc 
 
@@ -62,7 +58,6 @@ private:
 	wxTextCtrl * m_DirPathWarning;
 	wxTextCtrl * m_SoundPathWarning;
 
-	//wxSound * m_Sound;
 	bool m_Changed;
 	bool m_DirPathChanged;
 
@@ -87,6 +82,7 @@ private:
 	void OnLoadHotkeySettings(wxCommandEvent & event);
 	void OnPickHotkeyLetter(wxCommandEvent & event);
 	void OnPickHotkeyModifier(wxCommandEvent & event);
+	void OnPickShapeTransparencyButton(wxCommandEvent & event);
 	void CreateSettings();
 	void LoadSettings();
 	void UpdateGUISettings();
@@ -104,9 +100,6 @@ private:
 	void UpdateTxtCtrlGreen();
 	void UpdateTxtCtrlOrange();
 	void UpdateTxtCtrlRed();
-
-	//void CheckColors();
-	
 
 	// SETTINGS
 	const wxString m_ClipboardKey = wxT("Always copy image to clipboard");
@@ -141,11 +134,11 @@ private:
 	const wxString m_GreenKey_Background = wxT("Background Color: Green");
 	const wxString m_BlueKey_Background = wxT("Background Color: Blue");
 
-	const wxString m_TransparencyKey = wxT("Shape Transparency");
+	const wxString m_TransparencyKey = wxT("Background Transparency");
+	const wxString m_ShapeTransparencyKey = wxT("Shape Transparency");
 
 	const wxString m_HotkeyModifierKey = wxT("Hotkey Modifier");
 	const wxString m_HotkeyLetterKey = wxT("Hotkey Letter");
-
 
 	bool m_Setting_CopyToClipboard;
 	bool m_Setting_SaveImages;
@@ -183,6 +176,7 @@ enum
 	ID_COMBOBOX_PICK_HOTKEY_MODIFIER,
 	ID_COMBOBOX_PICK_HOTKEY,
 	ID_TXTCTRL_HOTKEY,
+	ID_BUTTON_PICK_TRANSPARENCY_SHAPE,
 	//ID_BUTTON_SET_HOTKEY,
 };
 

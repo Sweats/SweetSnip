@@ -30,6 +30,7 @@ EVT_BUTTON(ID_BUTTON_PICK_OUTLINE_COLOR, Settings::OnPickOutlineColorButton)
 EVT_BUTTON(ID_BUTTON_PICK_SHAPE_COLOR, Settings::OnPickShapeColorButton)
 EVT_BUTTON(ID_BUTTON_PICK_BACKGROUND_COLOR, Settings::OnPickBackgroundColorButton)
 EVT_BUTTON(ID_BUTTON_PICK_TRANSPARENCY, Settings::OnPickTransparencyButton)
+EVT_BUTTON(ID_BUTTON_PICK_TRANSPARENCY_SHAPE, Settings::OnPickShapeTransparencyButton)
 
 // Hotkey Settings Controls
 EVT_COMBOBOX(ID_COMBOBOX_PICK_HOTKEY, Settings::OnPickHotkeyLetter)
@@ -156,7 +157,6 @@ void Settings::OnSetFilePath(wxCommandEvent & event)
 	if (ImageLocation.ShowModal() == wxID_OK)
 	{
 		wxString NewDirPath = ImageLocation.GetPath();
-		//m_ImageFilePath = ImageLocation.GetPath();
 
 		if (!NewDirPath.empty() && m_ImageFilePath.empty()) // If the new directory path is set while the previous one is empty (only possible if ini file was manually changed or first time running program), update the text ctrl.
 		{
@@ -275,13 +275,10 @@ void Settings::OnPlaySoundFilePath(wxCommandEvent & event)
 
 void Settings::OnPlaySoundButton(wxCommandEvent & event)
 {
-	wxSound Sound;
-
-	Sound.Create(m_SoundFilePath, false);
+	wxSound Sound(m_SoundFilePath, false);
 
 	if (Sound.IsOk())
 	{
-		//wxMessageBox("Sound loaded successfully!");
 		Sound.Play(wxSOUND_ASYNC);
 	}
 
@@ -371,7 +368,13 @@ void Settings::OnPickBackgroundColorButton(wxCommandEvent & event)
 
 void Settings::OnPickTransparencyButton(wxCommandEvent & event)
 {
-	TransparencyWindow * Window = new TransparencyWindow(this, wxT("Set Shape Transparency Value"), wxSize(310, 220), m_config);
+	TransparencyWindow * Window = new TransparencyWindow(this, wxT("Set Background Transparency Value"), wxSize(310, 220), m_config, BACKGROUND_TRANSPARENCY);
+	Window->Show(true);
+}
+
+void Settings::OnPickShapeTransparencyButton(wxCommandEvent & event)
+{
+	TransparencyWindow * Window = new TransparencyWindow(this, wxT("Set Shape Transparency Value"), wxSize(310, 220), m_config, SHAPE_TRANSPARENCY);
 	Window->Show(true);
 }
 
@@ -428,7 +431,6 @@ void Settings::OnPickHotkeyLetter(wxCommandEvent & event)
 		m_Save->SetLabel(wxT("Save Changes"));
 		wxString Final = m_HotkeyModifier + " + " + m_HotkeyLetter;
 		m_HotKeyCtrl->SetLabelText(Final);
-		//m_HotkeyShortcutLabel->SetLabelText(Final);
 	}
 }
 
@@ -444,15 +446,9 @@ void Settings::OnPickHotkeyModifier(wxCommandEvent & event)
 		m_Save->SetLabel(wxT("Save Changes"));
 		wxString Final = m_HotkeyModifier + " + " + m_HotkeyLetter;
 		m_HotKeyCtrl->SetLabelText(Final);
-		//m_HotkeyShortcutLabel->SetLabelText(Final);
 	}
 }
 
-/*void Settings::OnSetHotkeyButton(wxCommandEvent & event)
-{
-
-}
-*/
 
 void Settings::CreateSettings()
 {
@@ -475,6 +471,7 @@ void Settings::CreateSettings()
 	m_config->Write(m_GreenKey_Background, 255);
 	m_config->Write(m_BlueKey_Background, 255);
 	m_config->Write(m_TransparencyKey, 100);
+	m_config->Write(m_ShapeTransparencyKey, 100);
 	m_config->Write(m_HotkeyModifierKey, wxT("CTRL"));
 	m_config->Write(m_HotkeyLetterKey, wxT("E"));
 }
@@ -625,9 +622,9 @@ void Settings::LoadGeneralSettingsLayout()
 	m_ColorBackgroundCheckBox->Hide();
 	m_PickBackgroundColorButton->Hide();
 	m_PickTransparencyButton->Hide();
+	m_PickShapeTransparencyButton->Hide();
 
 	m_HotKeyCtrl->Hide();
-	//m_HotkeyShortcutLabel->Hide();
 	m_HotkeyList->Hide();
 	m_HotkeyModiferList->Hide();
 	m_HotkeyLabel->Hide();
@@ -650,7 +647,6 @@ void Settings::LoadColorSettingsLayout()
 	m_HotkeyList->Hide();
 	m_HotkeyModiferList->Hide();
 	m_HotKeyCtrl->Hide();
-	//m_HotkeyShortcutLabel->Hide();
 	m_HotkeyLabel->Hide();
 	m_HotkeyLetterLabel->Hide();
 	m_HotKeyModifierLabel->Hide();
@@ -663,6 +659,7 @@ void Settings::LoadColorSettingsLayout()
 	m_ColorBackgroundCheckBox->Show();
 	m_PickBackgroundColorButton->Show();
 	m_PickTransparencyButton->Show();
+	m_PickShapeTransparencyButton->Show();
 
 }
 
@@ -683,9 +680,9 @@ void Settings::LoadHotkeySettingsLayout()
 	m_ColorBackgroundCheckBox->Hide();
 	m_PickBackgroundColorButton->Hide();
 	m_PickTransparencyButton->Hide();
+	m_PickShapeTransparencyButton->Hide();
 
 	m_HotKeyCtrl->Show();
-	//m_HotkeyShortcutLabel->Show();
 	m_HotkeyList->Show();
 	m_HotkeyModiferList->Show();
 	m_HotkeyLabel->Show();
@@ -702,14 +699,15 @@ void Settings::AllocateControls()
 
 void Settings::AllocateButtons()
 {
-	m_Save = new wxButton(m_Panel, ID_BUTTON_SAVE, wxT("No Changes Made"), wxPoint(75, 215), wxSize(120, 50));
+	m_Save = new wxButton(m_Panel, ID_BUTTON_SAVE, wxT("No Changes Made"), wxPoint(75, 240), wxSize(120, 50));
 	m_SaveFileLocation = new wxButton(m_Panel, ID_BUTTON_SET_FILE_LOCATION, wxT("Set File Path"), wxPoint(10, 70), wxSize(100, 25));
 	m_PlaySoundPath = new wxButton(m_Panel, ID_BUTTON_SET_SOUND_PATH, wxT("Set Sound"), wxPoint(10, 130), wxSize(100, 25));
 	m_PlaySoundButton = new wxButton(m_Panel, ID_BUTTON_PLAY_SOUND, wxT("Test Sound"), wxPoint(10, 155), wxSize(100, 25));
 	m_PickOutlineColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_OUTLINE_COLOR, wxT("Pick Custom Outline Color"), wxPoint(10, 50), wxSize(150, 25));
 	m_PickShapeColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_SHAPE_COLOR, wxT("Pick Custom Shape Color"), wxPoint(10, 100), wxSize(150, 25));
 	m_PickBackgroundColorButton = new wxButton(m_Panel, ID_BUTTON_PICK_BACKGROUND_COLOR, wxT("Pick Custom Background Color"), wxPoint(10, 150), wxSize(200, 25));
-	m_PickTransparencyButton = new wxButton(m_Panel, ID_BUTTON_PICK_TRANSPARENCY, wxT("Pick Shape Transparency Amount"), wxPoint(10, 180), wxSize(200, 25));
+	m_PickTransparencyButton = new wxButton(m_Panel, ID_BUTTON_PICK_TRANSPARENCY, wxT("Pick Background Transparency Value"), wxPoint(10, 180), wxSize(200, 25));
+	m_PickShapeTransparencyButton = new wxButton(m_Panel, ID_BUTTON_PICK_TRANSPARENCY_SHAPE, wxT("Pick Shape Transparency Value"), wxPoint(10, 210), wxSize(200, 25));
 }
 
 void Settings::AllocateCheckBoxes()
@@ -746,7 +744,6 @@ void Settings::AllocateHotkeyControls()
 	m_HotkeyModiferList = new wxComboBox(m_Panel, ID_COMBOBOX_PICK_HOTKEY_MODIFIER, wxT("Choose Modifier Key"), wxPoint(105, 30), wxSize(60, 100), m_HotkeyModifiers, wxCB_READONLY);
 	m_HotkeyList = new wxComboBox(m_Panel, ID_COMBOBOX_PICK_HOTKEY, wxT("Choose Key"), wxPoint(105, 60), wxSize(60, 100), m_HotKeys, wxCB_READONLY);
 	m_HotKeyCtrl = new wxTextCtrl(m_Panel, wxID_ANY, (m_HotkeyModifier + " + " + m_HotkeyLetter), wxPoint(100, 120), wxSize(65, 20), wxTE_READONLY | wxTE_LEFT);
-	//m_HotkeyShortcutLabel = new wxStaticText(m_Panel, wxID_ANY, (m_HotkeyModifier + " + " + m_HotkeyLetter), wxPoint(100, 120), wxSize(150, 20));
 	m_HotkeyLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Current Hotkey:"), wxPoint(95, 100), wxSize(125, 20));
 	m_HotkeyLetterLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Choose Letter"), wxPoint(10, 60), wxSize(75, 20));
 	m_HotKeyModifierLabel = new wxStaticText(m_Panel, wxID_ANY, wxT("Choose Modifier"), wxPoint(10, 30), wxSize(90, 20));
