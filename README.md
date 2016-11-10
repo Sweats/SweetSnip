@@ -23,3 +23,10 @@ The following are ideas that I may implement in the future depending on if I nee
 1. .PNG, .GIF, .BMP formats. Currently, it automatically and only saves snippets as a .jpg file because other formats have transparency.
 
 2. If I really need to, a small and simple editing tool within SweetSnip
+
+# Installation (Windows)
+
+1. Download all the images.
+2. Download the .exe
+3. Extract all the images and the exe to a folder.
+4. Run .exe.
