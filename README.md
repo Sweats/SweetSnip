@@ -1,6 +1,6 @@
 # SweetSnip
 
-A simple and easy to use cross platform screenshot tool built with wxWidgets that I wrote for myself. It's similar to Microsofts "Snipping Tool" except for the following:
+A simple and easy to use screenshot tool for Windows built with wxWidgets that I wrote for myself. It's similar to Microsofts "Snipping Tool" except for the following:
 
 1. I did not build an editing window because image editing software already exists that comes with Windows, Mac, and Linux distributions.
 
